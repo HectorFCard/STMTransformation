@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_1cGFQCrLEeyYiIg86aGvFw" name="TraficLight">
+  <packagedElement xmi:type="uml:Class" xmi:id="_49YasCrLEeyYiIg86aGvFw" name="TraficLight">
+    <ownedAttribute xmi:id="_f_MCUCrMEeyYiIg86aGvFw" name="Requested"/>
+    <ownedAttribute xmi:id="_suveICrMEeyYiIg86aGvFw" name="PedLight" type="_lE9pUCrMEeyYiIg86aGvFw"/>
+    <ownedAttribute xmi:id="_u95dUCrMEeyYiIg86aGvFw" name="CarLight" type="_lE9pUCrMEeyYiIg86aGvFw"/>
+    <ownedOperation xmi:id="_Gp-tkCrMEeyYiIg86aGvFw" name="SwitchCarLight"/>
+    <ownedOperation xmi:id="_Ir7XMCrMEeyYiIg86aGvFw" name="SwitchPedLight"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_5bTFwCrLEeyYiIg86aGvFw" name="Button">
+    <ownedRule xmi:id="_ksUtUDLDEeyn3fWozJ8W6Q" name="NoNegative" constrainedElement="_P7KlECrMEeyYiIg86aGvFw">
+      <specification xmi:type="uml:OpaqueExpression" xmi:id="_mXRzQDLDEeyn3fWozJ8W6Q" name="NoNegative">
+        <language>ocl</language>
+        <body>inv: not self.counter &lt; 1</body>
+      </specification>
+    </ownedRule>
+    <ownedAttribute xmi:id="_P7KlECrMEeyYiIg86aGvFw" name="Counter" isUnique="false"/>
+    <ownedOperation xmi:id="_A9d2sCrMEeyYiIg86aGvFw" name="RequestPass"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Enumeration" xmi:id="_lE9pUCrMEeyYiIg86aGvFw" name="Color">
+    <ownedLiteral xmi:id="_opYLQCrMEeyYiIg86aGvFw" name="Green"/>
+    <ownedLiteral xmi:id="_pFii0CrMEeyYiIg86aGvFw" name="Red"/>
+  </packagedElement>
+</uml:Model>
