@@ -4,12 +4,12 @@
     <actions>
         <action label="STM Transformation"
                 icon="FILL IN"
-                class="FILL IN"
+                class="org.tzi.use.STMPlugin.STMPluginAction"
                 tooltip="Input a UML class model and file with TOCL properties and transform."
                 menu="STM Transformation"
                 menuitem="STM Transformation"
                 toolbaritem="plugins"
-                id="SAME AS CLASS">
+                id="org.tzi.use.STMPlugin.STMPluginAction">
         </action>
     </actions>
     <commands>

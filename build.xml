@@ -1,0 +1,12 @@
+<project name="STMTransformation" default="build" basedir=".">
+    <description>Plugin to transform a UML class model to a Snapshot Transition Model and translate TOCL properties to OCL</description>
+    <!--insert necessary properties-->
+    <property name="use.version" value="6.0.0"/>
+    <property name="release.number" value="1"/>
+
+    <property name="version" value="${use.version}-r${release.number}" />
+
+    <path id="classpath">
+
+    </path>
+</project>
