@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?use version="6.0.0"?>
+<plugin name="STMPlugin" version="1.0">
+    <actions>
+        <action label="STM Transformation"
+                icon="FILL IN"
+                class="FILL IN"
+                tooltip="Input a UML class model and file with TOCL properties and transform."
+                menu="STM Transformation"
+                menuitem="STM Transformation"
+                toolbaritem="plugins"
+                id="SAME AS CLASS">
+        </action>
+    </actions>
+    <commands>
+    </commands>
+</plugin>
