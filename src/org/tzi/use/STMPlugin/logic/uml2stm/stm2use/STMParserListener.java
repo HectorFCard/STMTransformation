@@ -1,5 +1,5 @@
 // Generated from STMParser.g4 by ANTLR 4.9.3
-package stm2use;
+package org.tzi.use.logic.uml2stm.stm2use;
 
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 

@@ -1,4 +1,4 @@
-//package org.tzi.use.logic;
+package org.tzi.use.logic.uml2stm;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,6 +26,7 @@ import org.eclipse.m2m.qvt.oml.ModelExtent;
 import org.eclipse.m2m.qvt.oml.TransformationExecutor;
 import org.eclipse.uml2.uml.UMLPackage;
 import org.eclipse.uml2.uml.resource.UMLResource;
+import org.tzi.use.logic.uml2stm.stm2use.XML2USEConverter;
 
 public class UML2STMTransform {
     public static void main(String[] args) {
@@ -57,7 +58,11 @@ public class UML2STMTransform {
 	    getExtensionToFactoryMap().put(UMLResource.FILE_EXTENSION, UMLResource.Factory.INSTANCE);
 
         //Loading UML class model
-        URI umlmodel = URI.createFileURI("org/tzi/use/logic/uml2stm/test_models/SteamBoiler.uml");
+        String modelPath = "org/tzi/use/logic/uml2stm/test_models/SteamBoiler.uml";
+        Integer nameBeginIndex = modelPath.lastIndexOf('/');
+        Integer nameEndIndex = modelPath.indexOf(".uml", 0);
+        String modelName = modelPath.substring(nameBeginIndex + 1, nameEndIndex);
+        URI umlmodel = URI.createFileURI(modelPath);
         Resource inResource = rs.getResource(umlmodel, true);
         EList<EObject> inObjects = inResource.getContents();
 
@@ -76,32 +81,38 @@ public class UML2STMTransform {
         ExecutionDiagnostic result = executor.execute(context, input, output);
 
         //Check for issues in transformation
-        //If none: save the objects to an ecore file CONTAINING the STM metamodel
-        //Else: print error
-        if(result.getSeverity() == Diagnostic.OK) {
-            //Make a new File containing a copy of the STM metamodel
-            Path outfile = new File("org/tzi/use/logic/uml2stm/temp/SteamBoilerSTM.ecore").toPath();
-            Path srcfile = new File(STM_MM_FILE).toPath();
-            try {
-                Files.copy(srcfile, outfile, StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            //Save transformed STM to the created file
-            List<EObject> outObjects = output.getContents();
-            Resource outResource = rs.getResource(
-                    URI.createFileURI(outfile.toFile().getAbsolutePath()), true);
-            outResource.getContents().addAll(outObjects);
-            try {
-                outResource.save(Collections.emptyMap());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
+        if(result.getSeverity() != Diagnostic.OK) {
             //Output error			
             IStatus status = BasicDiagnostic.toIStatus(result);
             System.out.println(status.getMessage());
+        }
+
+        //Make a new File containing a copy of the STM metamodel
+        Path srcfile = new File(STM_MM_FILE).toPath();
+        Path outfile = new File("org/tzi/use/logic/uml2stm/temp/" + modelName + ".ecore").toPath();
+        try {
+            Files.copy(srcfile, outfile, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        //Save transformed STM to the created file
+        List<EObject> outObjects = output.getContents();
+        Resource outResource = rs.getResource(
+                URI.createFileURI(outfile.toFile().getAbsolutePath()), true);
+        outResource.getContents().addAll(outObjects);
+        try {
+            outResource.save(Collections.emptyMap());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        //Generate USE file from STM ecore file
+        XML2USEConverter converter = new XML2USEConverter();
+        try {
+            converter.genUseSpec(outfile.toAbsolutePath().toString());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

@@ -1,5 +1,5 @@
-import java.io.IOException;
-import java.io.PrintWriter;
+package org.tzi.use.logic.uml2stm.stm2use.ast;
+
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -60,16 +60,20 @@ public class ASTModel {
             indexes.add(Integer.parseInt(matcher.group()));
         }
 
-        if (indexes.size() == 2) {
-            return ((ASTSnapshotClass) ownedElements.get(indexes.get(0)))
-                .getComponents().get(indexes.get(1));
-        } else if (indexes.size() == 1) {
-            return ownedElements.get(indexes.get(0));
+        if (indexes.size() == 3) {
+            return ((ASTSnapshotClass) ownedElements.get(indexes.get(1)))
+                .getComponents().get(indexes.get(2));
+        } else if (indexes.size() == 2) {
+            return ownedElements.get(indexes.get(1));
         } else return null;
     }
 
     public void setField(String fieldName, String fieldValue) {
         if (fieldName.equals("name")) name = fieldValue;
+    }
+
+    public String getName() {
+        return name;
     }
     
     public void addElem(ASTClassifier e) {
@@ -78,16 +82,6 @@ public class ASTModel {
 
     public ArrayList<ASTClassifier> getOwnedElements() {
         return ownedElements;
-    }
-
-    public void printModel() {
-        try {
-            PrintWriter writer = new PrintWriter(name+".use", "UTF-8");
-            writer.print(toString());
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
     
     public String toString() {

@@ -1,3 +1,5 @@
+package org.tzi.use.logic.uml2stm.stm2use.ast;
+
 public class ASTProperty {
     String name = null;
     ASTClassifier type;

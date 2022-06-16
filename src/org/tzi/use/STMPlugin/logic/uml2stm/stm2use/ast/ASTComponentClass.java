@@ -1,3 +1,5 @@
+package org.tzi.use.logic.uml2stm.stm2use.ast;
+
 import java.util.ArrayList;
 
 public class ASTComponentClass extends ASTClassifier {
@@ -46,6 +48,7 @@ public class ASTComponentClass extends ASTClassifier {
     }
 
     public String toString() {
+        String abs = (isAbstract) ? "abstract " : "";
         String attrs = "";
         String qOps = "";
         String superTypeName = "";
@@ -59,6 +62,6 @@ public class ASTComponentClass extends ASTClassifier {
         for (ASTQueryOperation o : queryOps) {
             qOps = qOps.concat(o.toString()+"\n");
         }
-        return "class "+name+superTypeName+"\n"+attrs+qOps+"end\n\n";
+        return abs+"class "+name+superTypeName+"\n"+attrs+qOps+"end\n\n";
     }
 }
