@@ -1,3 +1,5 @@
+package org.tzi.use.logic.uml2stm.stm2use.ast;
+
 import java.util.ArrayList;
 
 public class ASTTransitionClass extends ASTClassifier {
@@ -25,6 +27,7 @@ public class ASTTransitionClass extends ASTClassifier {
     }
 
     public String toString() {
+        String abs = (isAbstract) ? "abstract " : "";
         String attrs = "";
         String superTypeName = "";
         if (superType != null) superTypeName = " < "+superType.getName();
@@ -33,6 +36,6 @@ public class ASTTransitionClass extends ASTClassifier {
             if (a.getType() != null)
                 attrs = attrs.concat(a.getName()+" : "+a.getType().getName()+"\n");
         }
-        return "class "+name+superTypeName+"\n"+attrs+"end\n\n";
+        return abs+"class "+name+superTypeName+"\n"+attrs+"end\n\n";
     }
 }

@@ -1,3 +1,5 @@
+package org.tzi.use.logic.uml2stm.stm2use.ast;
+
 import java.util.ArrayList;
 
 public class ASTEnumeration extends ASTClassifier {

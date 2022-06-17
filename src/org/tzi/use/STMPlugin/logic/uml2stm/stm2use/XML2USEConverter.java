@@ -1,20 +1,33 @@
-package stm2use;
+package org.tzi.use.logic.uml2stm.stm2use;
 
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
-import java.util.Stack;
-import stm2use.ast.*;
 
-public class XML2USE {
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Stack;
+import org.tzi.use.logic.uml2stm.stm2use.ast.*;
+
+public class XML2USEConverter {
     public static class USEEmitter extends STMParserBaseListener {
       STMParser parser;
       Stack<Object> currElem = new Stack<Object>();
       ASTModel model = null;
+      final String outDir = "org/tzi/use/logic/uml2stm/temp/";
 
       public USEEmitter(STMParser parser) {this.parser = parser;}
 
-      public void printUSESpec() {
-        model.printModel();
+      public void printSpec() {
+        try {
+          File outfile = new File(outDir+model.getName()+".use");
+          System.out.println(outfile.getAbsolutePath());
+          FileWriter writer = new FileWriter(outfile);
+          writer.write(model.toString());
+          writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
       }
         
       @Override public void enterModelElem(STMParser.ModelElemContext ctx) {
@@ -31,7 +44,6 @@ public class XML2USE {
       @Override public void enterModelOwnedElem(STMParser.ModelOwnedElemContext ctx) {
         String classifierType = ctx.attribute(0).STRING().getText();
         classifierType = classifierType.substring(1, classifierType.length()-1);
-        //System.out.println(classifierType);
         if (classifierType.equals("sTM:SnapshotClassifier")) currElem.add(new ASTSnapshotClass());
         else if (classifierType.equals("sTM:Association")) currElem.add(new ASTAssociation());
         else if (classifierType.equals("sTM:Enumeration")) currElem.add(new ASTEnumeration());
@@ -174,9 +186,8 @@ public class XML2USE {
     }
 
         
-    public static void main(String[] args) throws Exception {
-        String inputFile = "/uml2stm/temp/SteamBoilerSTM.ecore";
-        if ( args.length>0 ) inputFile = args[0];
+    public void genUseSpec(String xmlFile) throws Exception {
+        String inputFile = ( xmlFile.length() > 0 ) ? xmlFile : "";
 
         CharStream input = CharStreams.fromFileName(inputFile);
         STMLexer lexer = new STMLexer(input);
@@ -186,9 +197,9 @@ public class XML2USE {
         ParseTree tree = parser.document();
 
         ParseTreeWalker walker = new ParseTreeWalker();
-        USEEmitter converter = new USEEmitter(parser);
-        walker.walk(converter, tree);
-        
-        converter.printUSESpec();
+        USEEmitter emitter = new USEEmitter(parser);
+        walker.walk(emitter, tree);
+
+        emitter.printSpec();
     }
 }
