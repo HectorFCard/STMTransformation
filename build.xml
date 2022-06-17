@@ -7,10 +7,44 @@
     <property name="version" value="${use.version}-r${release.number}" />
 
     <property name="use.path" value="${basedir}/../../../" /> <!--this is an assumption, it may be wrong-->
+    <property name="src.dir" value="${basedir}/src" />
     <property name="use.classes" value="${use.dir}/build/classes" />
+    <property name="plugin.lib" value="lib" />
     <property name="manifest" value="${basedir}/META-INF/MANIFEST.MF" />
 
     <path id="classpath">
-        
+        <fileset dir="${plugin.lib}" includes="*.jar" />
+        <fileset dir="${use.path}/lib" includes="*.jar" excludes="use*" />
+        <pathelement location="${use.classes}" />
     </path>
+
+    <property name="build.dir" value="${basedir}/build" />
+    <property name="build.classes.dir" value="${build.dir}/classes" />
+    <property name="build.jarfiledest" value="${build.dir}/STMTransformationPlugin-${version}.jar" />
+    <property name="resources.dir" value="${basedir}/resources" />
+
+    <target name="compile-use" description="Build the components of USE that are required for the plugin">
+        <subant target="compile-use" buildpath="${use.path}" />
+    </target>
+
+    <target name="build" depends="compile-use" description="Build the plugin jar-file">
+        <mkdir dir="${build.classes.dir}" />
+        <javac srcdir="${src.dir}" destdir="${build.classes.dir}"
+            classpathref="classpath" debug="on" includeantruntime="no" />
+        <jar destfile="${build.jarfiledest}" manifest="${manifest}">
+            <fileset dir="${build.classes.dir}" />
+            <fileset dir="${basedir}" includes="resources/**" />
+            <fileset dir="${basedir}" includes="useplugin.xml" />
+            <fileset dir="${basedir}" includes="README" />
+            <fileset dir="${basedir}" includes="AUTHORS" />
+        </jar>
+    </target>
+
+    <target name="clean">
+        <delete dir="${build.dir}" />
+    </target>
+
+    <target name="deploy" depends="build">
+        <copy file="${build.jarfiledest}" todir="${use.dir}.lib/plugins" />
+    </target>
 </project>
