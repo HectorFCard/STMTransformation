@@ -3,7 +3,7 @@
 <plugin name="STMPlugin" version="1.0">
     <actions>
         <action label="STM Transformation"
-                icon="FILL IN"
+                icon="resources/idk.png"
                 class="org.tzi.use.STMPlugin.STMPluginAction"
                 tooltip="Input a UML class model and file with TOCL properties and transform."
                 menu="STM Transformation"
