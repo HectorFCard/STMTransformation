@@ -6,7 +6,11 @@
 
     <property name="version" value="${use.version}-r${release.number}" />
 
-    <path id="classpath">
+    <property name="use.path" value="${basedir}/../../../" /> <!--this is an assumption, it may be wrong-->
+    <property name="use.classes" value="${use.dir}/build/classes" />
+    <property name="manifest" value="${basedir}/META-INF/MANIFEST.MF" />
 
+    <path id="classpath">
+        
     </path>
 </project>
