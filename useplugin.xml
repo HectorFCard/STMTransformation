@@ -13,5 +13,11 @@
         </action>
     </actions>
     <commands>
+        <command shellcmd="stmTransform"
+                label="STMTransformation"
+                help="Transforms current model into a Snapshot Transition Model and translates TOCL properties to OCL."
+                class="org.tzi.use.STMPlugin.STMPluginCMD"
+                id="org.tzi.use.STMPlugin.STMPluginCMD">
+        </command>
     </commands>
 </plugin>
