@@ -45,6 +45,6 @@
     </target>
 
     <target name="deploy" depends="build">
-        <copy file="${build.jarfiledest}" todir="${use.dir}.lib/plugins" />
+        <copy file="${build.jarfiledest}" todir="${use.path}.lib/plugins" />
     </target>
 </project>
