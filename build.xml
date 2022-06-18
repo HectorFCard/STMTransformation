@@ -8,7 +8,7 @@
 
     <property name="use.path" value="${basedir}/../../../" /> <!--this is an assumption, it may be wrong-->
     <property name="src.dir" value="${basedir}/src" />
-    <property name="use.classes" value="${use.dir}/build/classes" />
+    <property name="use.classes" value="${use.path}/build/classes" />
     <property name="plugin.lib" value="lib" />
     <property name="manifest" value="${basedir}/META-INF/MANIFEST.MF" />
 
