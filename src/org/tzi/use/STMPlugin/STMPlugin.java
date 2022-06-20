@@ -1,5 +1,6 @@
 package org.tzi.use.STMPlugin;
 
+import org.tzi.use.runtime.impl.Plugin;
 import org.tzi.use.STMPlugin.logic.JointTransformer;
 
 import java.io.File;
