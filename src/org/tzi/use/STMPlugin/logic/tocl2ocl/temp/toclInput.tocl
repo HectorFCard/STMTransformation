@@ -1,6 +1,0 @@
-context u:User inv GSTRBAC_TP15:
-	u.getAssignedRoles(z)->includes(r1)
-	and u.getAssignedRoles(z)->includes(r2)
-	and r1.getDSoDRoles(z)->includes(r2)
-	implies always not u.getActivatedRoles(z)->includes(r1)
-	and u.getActivatedRoles(z)->includes(r2)

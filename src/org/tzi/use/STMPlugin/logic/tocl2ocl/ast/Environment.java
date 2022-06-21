@@ -2,7 +2,6 @@ package org.tzi.use.STMPlugin.logic.tocl2ocl.ast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class Environment {
     public Environment(Environment p) {

@@ -1,1 +1,0 @@
-contextu:UserinvGSTRBAC_TP15:u.getAssignedRoles(z)->includes(r1)andu.getAssignedRoles(z)->includes(r2)andr1.getDSoDRoles(z)->includes(r2)implieslet CS:Snapshot = self.getCurrentSnapshot() in CS.getPost()->including(CS)->forAll(s | s.sat(notu.getActivatedRoles(z)->includes(r1)andu.getActivatedRoles(z)->includes(r2)))

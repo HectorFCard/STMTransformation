@@ -1,17 +1,21 @@
 package org.tzi.use.STMPlugin.logic.tocl2ocl;
 
-import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.tree.*;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.TokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.ParseTreeProperty;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
-import java.io.FileReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-
 import java.util.Stack;
 
 
-public class TOCLTranslate {
+public class TOCLTranslator {
     public static class OCLEmitter extends TOCLParserBaseListener {
         TOCLParser parser;
         public OCLEmitter(TOCLParser parser) {this.parser = parser;}
@@ -28,7 +32,7 @@ public class TOCLTranslate {
 
             CharSequence toclV;
             CharSequence oclV;
-            while (stack.empty() == false) {
+            while (!stack.empty()) {
                 toclV = stack.pop();
                 oclV = stack.pop();
 
@@ -135,13 +139,15 @@ public class TOCLTranslate {
     }
 
         
-    public static void main(String[] args) throws Exception {
-        String filePathString = "src/org/tzi/use/STMPlugin/logic/tocl2ocl/temp/toclInput.tocl";
-        if ( args.length>0 ) filePathString = args[0];
+    public static String translate(File infile) {
+        CharStream input = null;
+        try {
+            FileReader fileReader = new FileReader(infile.getAbsolutePath());
+            input = CharStreams.fromReader(fileReader);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        FileReader fileReader = new FileReader(new File(filePathString).getAbsolutePath());
-
-        CharStream input = CharStreams.fromReader(fileReader);
         TOCLLexer lexer = new TOCLLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         TOCLParser parser = new TOCLParser(tokens);
@@ -152,8 +158,12 @@ public class TOCLTranslate {
         OCLEmitter converter = new OCLEmitter(parser);
         walker.walk(converter, tree);
 
+        String inputFilePath = infile.getAbsolutePath();
+        Integer fileExtensionIndex = inputFilePath.lastIndexOf('.');
+        String outFilePath = inputFilePath.substring(0,fileExtensionIndex)+"STM.ocl";
+
         try {
-            File oclFile = new File("oclResult.ocl");
+            File oclFile = new File(outFilePath);
             if (oclFile.createNewFile()) {
               System.out.println("File created: " + oclFile.getName());
             } else {
@@ -164,7 +174,7 @@ public class TOCLTranslate {
             e.printStackTrace();
           }
           try {
-            FileWriter oclWriter = new FileWriter("src/org/tzi/use/STMPlugin/logic/tocl2ocl/temp/oclResult.ocl");
+            FileWriter oclWriter = new FileWriter(outFilePath);
             oclWriter.write(converter.getOCL(tree));
             oclWriter.close();
             System.out.println("Successfully wrote to the file.");
@@ -173,6 +183,6 @@ public class TOCLTranslate {
             e.printStackTrace();
           }
 
-        System.out.println(converter.getOCL(tree));
+        return converter.getOCL(tree);
     }
 }

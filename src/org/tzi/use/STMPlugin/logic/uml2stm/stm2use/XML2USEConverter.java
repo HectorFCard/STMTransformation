@@ -1,31 +1,37 @@
 package org.tzi.use.STMPlugin.logic.uml2stm.stm2use;
 
-import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.tree.*;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.tzi.use.STMPlugin.logic.uml2stm.stm2use.ast.*;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Stack;
-import org.tzi.use.STMPlugin.logic.uml2stm.stm2use.ast.*;
 
 public class XML2USEConverter {
     public static class USEEmitter extends STMParserBaseListener {
       STMParser parser;
       Stack<Object> currElem = new Stack<Object>();
       ASTModel model = null;
-      final String outDir = "src/org/tzi/use/STMPlugin/logic/uml2stm/temp/";
 
       public USEEmitter(STMParser parser) {this.parser = parser;}
 
-      public void printSpec() {
+      public File printSpec(String inputFilePath) {
         try {
-          File outfile = new File(outDir+model.getName()+".use");
+          Integer fileExtensionIndex = inputFilePath.lastIndexOf('.');
+          String outFilePath = inputFilePath.substring(0,fileExtensionIndex)+".use";
+          File outfile = new File(outFilePath);
           FileWriter writer = new FileWriter(outfile);
           writer.write(model.toString());
           writer.close();
+          return outfile;
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
       }
         
@@ -184,20 +190,20 @@ public class XML2USEConverter {
     }
 
         
-    public void genUseSpec(String xmlFile) throws Exception {
-        String inputFile = ( xmlFile.length() > 0 ) ? xmlFile : "";
+    public File genUseSpec(File inputFile) throws Exception {
+      String inputFilePath = inputFile.getAbsolutePath();
 
-        CharStream input = CharStreams.fromFileName(inputFile);
-        STMLexer lexer = new STMLexer(input);
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        STMParser parser = new STMParser(tokens);
-        parser.setBuildParseTree(true);
-        ParseTree tree = parser.document();
+      CharStream input = CharStreams.fromFileName(inputFilePath);
+      STMLexer lexer = new STMLexer(input);
+      CommonTokenStream tokens = new CommonTokenStream(lexer);
+      STMParser parser = new STMParser(tokens);
+      parser.setBuildParseTree(true);
+      ParseTree tree = parser.document();
 
-        ParseTreeWalker walker = new ParseTreeWalker();
-        USEEmitter emitter = new USEEmitter(parser);
-        walker.walk(emitter, tree);
+      ParseTreeWalker walker = new ParseTreeWalker();
+      USEEmitter emitter = new USEEmitter(parser);
+      walker.walk(emitter, tree);
 
-        emitter.printSpec();
+      return emitter.printSpec(inputFilePath);
     }
 }
