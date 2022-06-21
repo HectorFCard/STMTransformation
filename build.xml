@@ -3,6 +3,7 @@
     <!--insert necessary properties-->
     <property name="use.version" value="6.0.0"/>
     <property name="release.number" value="1"/>
+    <property name="compiler" value="1.8"/>
 
     <property name="version" value="${use.version}-r${release.number}" />
 
@@ -29,7 +30,7 @@
 
     <target name="build" depends="compile-use" description="Build the plugin jar-file">
         <mkdir dir="${build.classes.dir}" />
-        <javac srcdir="${src.dir}" destdir="${build.classes.dir}"
+        <javac srcdir="${src.dir}" source="${compiler}" target="${compiler}" destdir="${build.classes.dir}"
             classpathref="classpath" debug="on" includeantruntime="no" />
         <jar destfile="${build.jarfiledest}" manifest="${manifest}">
             <fileset dir="${build.classes.dir}" />
