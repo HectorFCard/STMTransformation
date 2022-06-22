@@ -19,5 +19,4 @@ public class STMTransformationConfigurationWindow extends JDialog {
         setVisible(true);
     }
     
-    //setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 }
