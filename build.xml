@@ -38,6 +38,26 @@
             <fileset dir="${basedir}" includes="useplugin.xml" />
             <fileset dir="${basedir}" includes="README" />
             <fileset dir="${basedir}" includes="AUTHORS" />
+            <zipfileset src="lib/antlr-4.9.3-complete.jar" />
+            <zipfileset excludes="META-INF/**/*" src="lib/java-2.0.17-v201004271640.jar" />
+            <zipfileset excludes="META-INF/**/*" src="lib/org.eclipse.core.runtime_3.23.0.v20210730-2035.jar" />
+            <zipfileset excludes="META-INF/**/*" src="lib/org.eclipse.emf.common_2.23.0.v20210618-0700.jar" />
+            <zipfileset excludes="META-INF/**/*" src="lib/org.eclipse.emf.ecore.xmi_2.16.0.v20190528-0725.jar" />
+            <zipfileset excludes="META-INF/**/*" src="lib/org.eclipse.emf.ecore_2.25.0.v20210816-0937.jar" />
+            <zipfileset excludes="META-INF/**/*" src="lib/org.eclipse.equinox.common_3.15.0.v20210518-0604.jar" />
+            <zipfileset excludes="META-INF/**/*" src="lib/org.eclipse.equinox.preferences_3.9.0.v20210726-0943.jar" />
+            <zipfileset excludes="META-INF/**/*" src="lib/org.eclipse.m2m.qvt.oml.common_3.6.0.v20160606-1156.jar" />
+            <zipfileset excludes="META-INF/**/*" src="lib/org.eclipse.m2m.qvt.oml.cst.parser.source_3.6.0.v20160606-1156.jar" />
+            <zipfileset excludes="META-INF/**/*" src="lib/org.eclipse.m2m.qvt.oml.ecore.imperativeocl_3.4.0.v20160606-1156.jar" />
+            <zipfileset excludes="META-INF/**/*" src="lib/org.eclipse.m2m.qvt.oml.emf.util_3.6.0.v20160606-1156.jar" />
+            <zipfileset excludes="META-INF/**/*" src="lib/org.eclipse.m2m.qvt.oml_3.6.0.v20160606-1156.jar" />
+            <zipfileset excludes="META-INF/**/*" src="lib/org.eclipse.ocl.common_1.16.0.v20210907-2013.jar" />
+            <zipfileset excludes="META-INF/**/*" src="lib/org.eclipse.ocl.ecore_3.16.200.v20210907-2013.jar" />
+            <zipfileset excludes="META-INF/**/*" src="lib/org.eclipse.ocl_3.16.200.v20210907-2013.jar" />
+            <zipfileset excludes="META-INF/**/*" src="lib/org.eclipse.osgi_3.17.0.v20210823-1805.jar" />
+            <zipfileset excludes="META-INF/**/*" src="lib/org.eclipse.uml2.common_2.5.0.v20210228-1829.jar" />
+            <zipfileset excludes="META-INF/**/*" src="lib/org.eclipse.uml2.types_2.5.0.v20210228-1829.jar" />
+            <zipfileset excludes="META-INF/**/*" src="lib/org.eclipse.uml2.uml_5.5.0.v20210228-1829.jar" />
         </jar>
     </target>
 

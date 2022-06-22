@@ -32,13 +32,7 @@ public class STMPluginCMD implements IPluginShellCmdDelegate {
         File inputUMLFile = new File(inputUMLFileName);
         File inputTOCLFile = new File(inputTOCLFileName);
 
-        try {
             JointTransformer.transform(inputUMLFile, inputTOCLFile);
-        }
-        catch (FileNotFoundException e) {
-            out.println("Could not open a file.");
-            out.println(e.getMessage());
-        }
 
     }
     
