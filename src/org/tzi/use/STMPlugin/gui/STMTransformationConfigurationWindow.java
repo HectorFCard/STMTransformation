@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory; //new
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -37,6 +38,7 @@ public class STMTransformationConfigurationWindow extends JDialog {
         int row = 0;
 
         mainPanel.add(new JLabel("Enter .uml File:"),getGBC(row, 0));
+        row++;
 
         JPanel buttonPanel = new JPanel(new GridBagLayout());
         okButton = new JButton("OK");
@@ -55,10 +57,14 @@ public class STMTransformationConfigurationWindow extends JDialog {
         });
 
         buttonPanel.add(okButton, gbc);
+        buttonPanel.add(Box.createHorizontalStrut(5));//figure out what this means
         buttonPanel.add(cancelButton, gbc);
         mainPanel.add(buttonPanel, getGBC(row,0,3,1));
 
         setContentPane(mainPanel);
+
+        pack();
+        setLocationRelativeTo(parent);
         setVisible(true);
     }
     private GridBagConstraints getGBC(int row, int col){
