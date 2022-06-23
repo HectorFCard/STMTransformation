@@ -34,6 +34,7 @@
             classpathref="classpath" debug="on" includeantruntime="no" />
         <jar destfile="${build.jarfiledest}" manifest="${manifest}">
             <fileset dir="${build.classes.dir}" />
+            <fileset dir="${src.dir}" includes="org/**" excludes=".java" />
             <fileset dir="${basedir}" includes="resources/**" />
             <fileset dir="${basedir}" includes="useplugin.xml" />
             <fileset dir="${basedir}" includes="README" />
