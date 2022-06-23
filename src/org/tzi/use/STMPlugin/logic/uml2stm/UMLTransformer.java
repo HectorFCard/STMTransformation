@@ -1,5 +1,6 @@
 package org.tzi.use.STMPlugin.logic.uml2stm;
 
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.emf.common.util.BasicDiagnostic;
 import org.eclipse.emf.common.util.Diagnostic;
@@ -18,6 +19,8 @@ import org.tzi.use.STMPlugin.logic.uml2stm.stm2use.XML2USEConverter;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Collections;
@@ -74,8 +77,6 @@ public class UMLTransformer {
         ExecutionContextImpl context = new ExecutionContextImpl();
         context.setConfigProperty("keepModeling", true);
 
-        System.out.println(System.getProperty("java.class.path"));
-
         // run the transformation assigned to the executor with the given 
         // input and output and execution context
         ExecutionDiagnostic result = executor.execute(context, input, output);
@@ -88,10 +89,10 @@ public class UMLTransformer {
         }
 
         //Make a new File containing a copy of the STM metamodel
-        File srcfile = new File(mmFileUrl.getFile());
+        InputStream mmStream = UMLTransformer.class.getResourceAsStream(STM_MM_FILE_PATH);
         File outfile = new File(modelDir + modelName + "STM.ecore");
         try {
-            Files.copy(srcfile.toPath(), outfile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(mmStream, outfile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             e.printStackTrace();
         }
