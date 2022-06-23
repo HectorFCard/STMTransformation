@@ -25,7 +25,8 @@ import java.util.List;
 
 public class UMLTransformer {
     public static File genSTM(File infile) {
-        final String STM_MM_FILE = "src/org/tzi/use/STMPlugin/logic/uml2stm/mmodel/sTM.ecore";
+        final String STM_MM_FILE_PATH = "mmodel/sTM.ecore";
+        final String QVT_TRANSFORMATION_PATH = "qvto/STM.qvto";
 
         //Registering Ecore recource
         ResourceSet rs = new ResourceSetImpl();
@@ -33,7 +34,8 @@ public class UMLTransformer {
         .getExtensionToFactoryMap().put("ecore", new EcoreResourceFactoryImpl());
 
         //Registering STM metamodel as resource
-        Resource mmRes = rs.getResource(URI.createFileURI(STM_MM_FILE), true);
+        java.net.URL mmFileUrl = UMLTransformer.class.getResource(STM_MM_FILE_PATH);
+        Resource mmRes = rs.getResource(URI.createURI("jar:"+mmFileUrl.getPath()), true);
 
         EObject eObject = mmRes.getContents().get(0);
         EPackage p = null;
@@ -43,8 +45,8 @@ public class UMLTransformer {
         }
 
         //Creating a TransformationExecutor instance out of a qvto file
-        File qvtFile = new File("src/org/tzi/use/STMPlugin/logic/uml2stm/qvto/STM.qvto");
-        URI transformationURI = URI.createFileURI(qvtFile.getAbsolutePath());
+        java.net.URL qvtFileUrl = UMLTransformer.class.getResource(QVT_TRANSFORMATION_PATH);
+        URI transformationURI = URI.createURI("jar:"+qvtFileUrl.getPath());
         TransformationExecutor executor = new TransformationExecutor(transformationURI);
 
         //Registering UML metamodel
@@ -72,6 +74,8 @@ public class UMLTransformer {
         ExecutionContextImpl context = new ExecutionContextImpl();
         context.setConfigProperty("keepModeling", true);
 
+        System.out.println(System.getProperty("java.class.path"));
+
         // run the transformation assigned to the executor with the given 
         // input and output and execution context
         ExecutionDiagnostic result = executor.execute(context, input, output);
@@ -84,7 +88,7 @@ public class UMLTransformer {
         }
 
         //Make a new File containing a copy of the STM metamodel
-        File srcfile = new File(STM_MM_FILE);
+        File srcfile = new File(mmFileUrl.getFile());
         File outfile = new File(modelDir + modelName + "STM.ecore");
         try {
             Files.copy(srcfile.toPath(), outfile.toPath(), StandardCopyOption.REPLACE_EXISTING);
