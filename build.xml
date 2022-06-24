@@ -48,7 +48,7 @@
             <zipfileset excludes="META-INF/**/*" src="lib/org.eclipse.equinox.common_3.15.0.v20210518-0604.jar" />
             <zipfileset excludes="META-INF/**/*" src="lib/org.eclipse.equinox.preferences_3.9.0.v20210726-0943.jar" />
             <zipfileset excludes="META-INF/**/*" src="lib/org.eclipse.m2m.qvt.oml.common_3.6.0.v20160606-1156.jar" />
-            <zipfileset excludes="META-INF/**/*" src="lib/org.eclipse.m2m.qvt.oml.cst.parser.source_3.6.0.v20160606-1156.jar" />
+            <zipfileset excludes="META-INF/**/*" src="lib/org.eclipse.m2m.qvt.oml.cst.parser-3.4.0.v20140429-1120.jar" />
             <zipfileset excludes="META-INF/**/*" src="lib/org.eclipse.m2m.qvt.oml.ecore.imperativeocl_3.4.0.v20160606-1156.jar" />
             <zipfileset excludes="META-INF/**/*" src="lib/org.eclipse.m2m.qvt.oml.emf.util_3.6.0.v20160606-1156.jar" />
             <zipfileset excludes="META-INF/**/*" src="lib/org.eclipse.m2m.qvt.oml_3.6.0.v20160606-1156.jar" />
