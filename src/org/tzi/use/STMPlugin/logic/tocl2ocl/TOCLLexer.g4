@@ -110,8 +110,17 @@ AT_NEXT: '@next';
 
 SIMPLE_NAME: [A-Z_$a-z] [A-Z_$a-z0-9]*;
 
-WhiteSpaceChar: (' ' | '\t' | '\n' | '\r' | '\n\r') -> skip;
+WhiteSpaceChar: (' ' | '\t' | '\n' | '\r' | '\n\r') -> channel(HIDDEN);
+
+SL_COMMENT:
+    ('--')(~('\n'))* -> channel(HIDDEN);
+
+// multiple-line comments
+ML_COMMENT:
+    '/*' (.)*? '*/' ->channel(HIDDEN);
+
 Char: [A-Z] | UNDERSCORE | '$' | [a-z] | MINUS | [0-9];
+
 EscapeSequence: '\\' 'b'
                 | '\\' 't'
                 | '\\' 'n'
