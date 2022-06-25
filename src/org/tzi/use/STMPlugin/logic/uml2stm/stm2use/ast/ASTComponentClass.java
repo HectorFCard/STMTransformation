@@ -7,6 +7,79 @@ public class ASTComponentClass extends ASTClassifier {
     ArrayList<ASTQueryOperation> queryOps = new ArrayList<ASTQueryOperation>();
     ArrayList<ASTConstraint> invariants = new ArrayList<ASTConstraint>();
 
+    public void doFinalTasks() {
+        String className =  name.toLowerCase();
+        String varName = className.substring(0, 1);
+
+        ASTProperty id = new ASTProperty();
+        id.setField("name", "_objectId");
+        id.setField("lower", "0");
+        id.setField("upper", "1");
+        ASTClassifier _int = new ASTClassifier();
+        _int.setField("name", "Integer");
+        id.setType(_int);
+        addAttribute(id);
+
+        ASTQueryOperation getCurrSnap = new ASTQueryOperation();
+        getCurrSnap.setField("name", "getCurrentSnapshot");
+        getCurrSnap.setField("lower", "1");
+        getCurrSnap.setField("upper", "1");
+        getCurrSnap.setField("type", "0#0");
+        ASTConstraint bodyCond = new ASTConstraint("body");
+        bodyCond.setField("body", "self.snapshot");
+        getCurrSnap.addCondition(bodyCond);
+        addOperation(getCurrSnap);
+
+        ASTQueryOperation getNext = new ASTQueryOperation();
+        getNext.setField("name", "getNext");
+        getNext.setField("lower", "0");
+        getNext.setField("upper", "1");
+        getNext.setType(this);
+        bodyCond = new ASTConstraint("body");
+        bodyCond.setField("body",
+            "self.snapshot.getNext()."+className+
+            "->any("+varName+" | self._objectId = "+varName+"._objectId)");
+        getNext.addCondition(bodyCond);
+        addOperation(getNext);
+
+        ASTQueryOperation getPost = new ASTQueryOperation();
+        getPost.setField("name", "getPost");
+        getPost.setField("lower", "0");
+        getPost.setField("upper", "-1");
+        getPost.setType(this);
+        bodyCond = new ASTConstraint("body");
+        bodyCond.setField("body", "Set{self.getNext()}->closure(getNext())->excluding(null)");
+        getPost.addCondition(bodyCond);
+        addOperation(getPost);
+
+        ASTQueryOperation getPrevious = new ASTQueryOperation();
+        getPrevious.setField("name", "getPrevious");
+        getPrevious.setField("lower", "0");
+        getPrevious.setField("upper", "1");
+        getPrevious.setType(this);
+        bodyCond = new ASTConstraint("body");
+        bodyCond.setField("body",
+            "self.snapshot.getPrevious()."+className+
+            "->any("+varName+" | self._objectId = "+varName+"._objectId)");
+        getPrevious.addCondition(bodyCond);
+        addOperation(getPrevious);
+
+        ASTQueryOperation getPre = new ASTQueryOperation();
+        getPre.setField("name", "getPre");
+        getPre.setField("lower", "0");
+        getPre.setField("upper", "-1");
+        getPre.setType(this);
+        bodyCond = new ASTConstraint("body");
+        bodyCond.setField("body", "Set{self.getPrevious()}->closure(getPrevious())->excluding(null)");
+        getPre.addCondition(bodyCond);
+        addOperation(getPre);
+
+        ASTConstraint uniqueIds = new ASTConstraint("inv");
+        uniqueIds.setField("name", "uniqueIds");
+        uniqueIds.setField("body", name+".allInstances()->forAll("+varName+" : "+name+" | "+varName+"._objectId = self._objectId implies "+varName+" = self)");
+        addInv(uniqueIds);
+    }
+
     public void setSuperType(ASTClassifier t) {
         superType = t;
     }
@@ -60,7 +133,7 @@ public class ASTComponentClass extends ASTClassifier {
         }
         if (queryOps.size() > 0) qOps = "operations\n"; 
         for (ASTQueryOperation o : queryOps) {
-            qOps = qOps.concat(o.toString()+"\n");
+            qOps = qOps.concat(o.toString(true)+"\n");
         }
         return abs+"class "+name+superTypeName+"\n"+attrs+qOps+"end\n\n";
     }

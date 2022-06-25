@@ -3,7 +3,7 @@ package org.tzi.use.STMPlugin.logic.uml2stm.stm2use.ast;
 public class ASTProperty {
     String name = null;
     ASTClassifier type;
-    String typeIndex;
+    String typeIndex = null;
     Integer lower = 0;
     Integer upper = 1;
     Boolean isDerived = false;
@@ -19,7 +19,9 @@ public class ASTProperty {
     }
 
     public String getName() { return name; }
+
     public void setType(ASTClassifier t) { type = t; }
+    
     public ASTClassifier getType() {
         if (type != null) {
             if (type.getName().equals("Void")) {

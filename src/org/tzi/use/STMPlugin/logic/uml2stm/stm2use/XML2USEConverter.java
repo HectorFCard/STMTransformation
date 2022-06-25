@@ -42,7 +42,7 @@ public class XML2USEConverter {
     
       @Override public void exitModelElem(STMParser.ModelElemContext ctx) {
         currElem.pop();
-        model.assignTypes();
+        model.doFinalTasks();
       }
       
       @Override public void enterModelOwnedElem(STMParser.ModelOwnedElemContext ctx) {

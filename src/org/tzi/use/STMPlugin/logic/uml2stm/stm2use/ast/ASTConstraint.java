@@ -6,7 +6,7 @@ public class ASTConstraint {
         type = t;
     }
 
-    String name;
+    String name = "";
     String type;
     String body;
 
@@ -20,7 +20,11 @@ public class ASTConstraint {
         }
     }
 
+    public String getType() {
+        return type;
+    }
+
     public String toString() {
-        return type+" "+name+": "+body+"\n";
+        return (!type.equals("body") ? type+" "+name+": " : "")+body+"\n";
     }
 }

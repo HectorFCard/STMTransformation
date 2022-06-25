@@ -5,6 +5,21 @@ import java.util.ArrayList;
 public class ASTTransitionClass extends ASTClassifier {
     ArrayList<ASTProperty> attributes  = new ArrayList<ASTProperty>();
     ArrayList<ASTConstraint> invariants  = new ArrayList<ASTConstraint>();
+    public Boolean isParentClass = false;
+
+    public void doFinalTasks() {
+        ASTConstraint sameTrans = new ASTConstraint("inv");
+        sameTrans.setField("name", "sameTransition");
+        sameTrans.setField("body", name+".allInstances()->forAll(t : "+name+" | (self.nextS = t.nextS and self.beforeS = t.beforeS) implies self = t)");
+        addInv(sameTrans);
+    }
+    
+    public void setField(String fieldName, String fieldValue) {
+        if (fieldName.equals("name")) name = fieldValue;
+        else if (fieldName.equals("general")) superTypeIndex = fieldValue;
+        else if (fieldName.equals("isAbstract")) isAbstract = Boolean.parseBoolean(fieldValue);
+        else if (fieldName.equals("isParentClass")) isParentClass = Boolean.parseBoolean(fieldValue);
+    }
     
     public void addAttribute(ASTProperty a) {
         attributes.add(a);

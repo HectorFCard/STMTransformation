@@ -8,6 +8,7 @@ public class ASTQueryOperation {
     ASTClassifier type;
     Integer lower;
     Integer upper;
+    ASTConstraint bodyCondition = null;
     ArrayList<ASTParameter> parameters = new ArrayList<ASTParameter>();
     ArrayList<ASTConstraint> conditions = new ArrayList<ASTConstraint>();
 
@@ -28,29 +29,34 @@ public class ASTQueryOperation {
 
     public void addCondition(ASTConstraint c) {
         conditions.add(c);
+        if (c.getType().equals("body")) bodyCondition = c;
     }
 
     public String getCondText() {
         String conds = "";
         for (ASTConstraint c : conditions) {
-            conds = conds.concat(c.toString());
+            if (!c.getType().equals("body")) conds = conds.concat(c.toString());
         }
         return conds;
     }
 
     public String toString() {
+        return toString(false);
+    }
+
+    public String toString(Boolean includeBody) {
         String typeName = "";
-        if (type != null) {
-            typeName = " : "+type.getName();
-            if (type.getName().toLowerCase().equals("void")) typeName = "";
+        if (type != null && !type.getName().toLowerCase().equals("void")) {
+            if (upper > 1 || upper < 0) typeName = " : Set("+type.getName()+")";
+            else typeName = " : "+type.getName();
         }
-        else if (upper > 1) typeName = "Set("+typeName+")";
         ArrayList<String> params = new ArrayList<String>();
+        String paramText = "";
         for (ASTParameter p : parameters) {
             params.add(p.toString());
         }
-        String paramText = "";
         if (params.size() > 0) paramText = String.join(", ", params);
-        return name+"("+paramText+")"+typeName;
+        return name+"("+paramText+")"+typeName+
+            ((bodyCondition != null && includeBody) ? " = "+bodyCondition.toString() : "");
     }
 }
