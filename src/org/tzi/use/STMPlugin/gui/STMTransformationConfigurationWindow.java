@@ -9,6 +9,11 @@ import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.nio.file.Path;
+import java.nio.file.Files;
 
 import javax.swing.BorderFactory; //new
 import javax.swing.Box;
@@ -22,13 +27,18 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicOptionPaneUI.ButtonActionListener;
 
 import org.tzi.use.config.Options;
 import org.tzi.use.gui.util.ExtFileFilter;
+import org.tzi.use.main.Session;
 import org.tzi.use.uml.mm.MModel;
+import org.tzi.use.uml.mm.ModelFactory;
+import org.tzi.use.uml.sys.MSystem;
+import org.tzi.use.parser.use.USECompiler;
 
 import org.tzi.use.STMPlugin.logic.JointTransformer;
 
@@ -41,8 +51,11 @@ public class STMTransformationConfigurationWindow extends JDialog {
     private JButton transformButton;
     private JButton cancelButton;
 
-    public STMTransformationConfigurationWindow(final JFrame parent, final MModel model) {
+    private final Session fSession;
+
+    public STMTransformationConfigurationWindow(final JFrame parent, final Session session, final MModel model) {
         super(parent, "STM Transformation Options");
+        fSession = session;
 
         setLocationRelativeTo(parent);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -209,7 +222,7 @@ public class STMTransformationConfigurationWindow extends JDialog {
         transValPanel1.add(filechooserButtonTOCLTV, getGBC(TV1SubRow, 2));
         TV1SubRow++;
 
-        //asjdjfa
+        //Choosing configuration method
         JPanel uploadPropPanel = new JPanel(new GridBagLayout());
 
         final JLabel propFileLabel = new FilePathLabel();
@@ -257,7 +270,7 @@ public class STMTransformationConfigurationWindow extends JDialog {
         JPanel configMethodPanel = new JPanel();
         transValPanel1.add(new JLabel("Configuration method:"),getGBC(TV1SubRow, 0));
         transValPanel1.add(configMethod,getGBC(TV1SubRow, 1));
-        //asdf
+        //End of choosing configuration method
         TV1SubRow++;
         TV1SubRow++;
 
@@ -283,7 +296,34 @@ public class STMTransformationConfigurationWindow extends JDialog {
                     JOptionPane.showMessageDialog(STMTransformationConfigurationWindow.this, "Please select a TOCL file!", "No File", JOptionPane.ERROR_MESSAGE);
                 }
                 
-                JointTransformer.transform(fUML, fTOCL);
+                Path fileCreated = JointTransformer.transform(fUML, fTOCL);
+                if (Files.exists(fileCreated)) {
+                    System.out.println(fileCreated.getFileName());
+                    System.out.println("compiling specification " + fileCreated.toString() + "...");
+                    PrintWriter logWriter = new PrintWriter(System.out);
+                    MModel model = null;
+                    try (InputStream iStream = Files.newInputStream(fileCreated)) {
+                        model = USECompiler.compileSpecification(iStream, fileCreated.toAbsolutePath().toString(), logWriter, new ModelFactory());
+                        System.out.println("done.");
+                    } catch(IOException ex) {
+                        System.out.println("File `" + fileCreated.toAbsolutePath().toString() + "' not found.");
+                    }
+
+                    final MSystem system;
+                    if (model != null) {
+                        System.out.println(model.getStats());
+                        system = new MSystem(model);
+                    } else {
+                        system = null;
+                    }
+                    
+                    SwingUtilities.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            fSession.setSystem(system);
+                        }
+                    });
+                }
             }
         });
         JButton cancelButtonTV = new JButton("Cancel");

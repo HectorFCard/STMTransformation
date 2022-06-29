@@ -17,7 +17,7 @@ public class STMPluginAction implements IPluginActionDelegate {
             return;
         }
         System.out.print("Creating configuration window");
-        new STMTransformationConfigurationWindow(MainWindow.instance(), pluginAction.getSession().system().model());
+        new STMTransformationConfigurationWindow(MainWindow.instance(), pluginAction.getSession(), pluginAction.getSession().system().model());
     }
     
 }
