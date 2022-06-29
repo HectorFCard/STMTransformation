@@ -209,6 +209,58 @@ public class STMTransformationConfigurationWindow extends JDialog {
         transValPanel1.add(filechooserButtonTOCLTV, getGBC(TV1SubRow, 2));
         TV1SubRow++;
 
+        //asjdjfa
+        JPanel uploadPropPanel = new JPanel(new GridBagLayout());
+
+        final JLabel propFileLabel = new FilePathLabel();
+        propFileLabel.setPreferredSize(new Dimension(300,20));
+        JButton propfilechooserButton = new JButton("Select");//consider adding image icon
+        JFileChooser propFileChooser = new JFileChooser(Options.getLastDirectory().toFile());
+        propFileChooser.setFileFilter(new ExtFileFilter("properties","Configuration File"));
+        propFileChooser.setDialogTitle("Choose configuration file");
+        propFileChooser.setMultiSelectionEnabled(false);
+        propFileChooser.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String cmd = e.getActionCommand();
+				if(cmd.equals(JFileChooser.APPROVE_SELECTION)){
+					propFileLabel.setText(propFileChooser.getSelectedFile().getAbsolutePath());
+				}
+			}
+		});
+        propfilechooserButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				propFileChooser.showSaveDialog(STMTransformationConfigurationWindow.this);
+			}
+		});
+
+        uploadPropPanel.add(new JLabel("Enter .properties File:"),getGBC(0, 0));
+        uploadPropPanel.add(propFileLabel, getGBC(0, 1));
+        uploadPropPanel.add(propfilechooserButton, getGBC(0, 2));
+
+        final JComboBox<String> configMethod = new JComboBox<String>(new String[]{ "Create configuration", "Upload .properties file"});
+        configMethod.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if ("Upload .properties file".equals(configMethod.getSelectedItem())) {
+                    transValPanel1.add(uploadPropPanel,getGBC(3,0,4,1));
+                    pack();
+                }
+                else {
+                    transValPanel1.remove(uploadPropPanel);
+                    pack();
+                }
+            }
+        });
+
+        JPanel configMethodPanel = new JPanel();
+        transValPanel1.add(new JLabel("Configuration method:"),getGBC(TV1SubRow, 0));
+        transValPanel1.add(configMethod,getGBC(TV1SubRow, 1));
+        //asdf
+        TV1SubRow++;
+        TV1SubRow++;
+
         JCheckBox transformFiles = new JCheckBox("Create transformation files");
         transformFiles.setSelected(true);
         transformFiles.setToolTipText("<html>Creates transformation files from the inputted .uml and .tocl files</html>");
@@ -250,8 +302,10 @@ public class STMTransformationConfigurationWindow extends JDialog {
 
         JLabel pageNum = new JLabel("1 of 2");
         pageNum.setForeground(Color.GRAY);
-        transValPanel1.add(pageNum,getGBC(subRow, 1));
+        transValPanel1.add(pageNum,getGBC(TV1SubRow, 1));
         transValPanel.add("1",transValPanel1);
+
+        JPanel transValPanel2 = new JPanel(new GridBagLayout());
 
         //END of Transform & Validate sub-panel
 
