@@ -30,7 +30,7 @@
 
     <target name="build" depends="compile-use" description="Build the plugin jar-file">
         <mkdir dir="${build.classes.dir}" />
-        <javac srcdir="${src.dir}" source="${compiler}" target="${compiler}" destdir="${build.classes.dir}"
+        <javac srcdir="${src.dir}" release="14" destdir="${build.classes.dir}"
             classpathref="classpath" debug="on" includeantruntime="no" />
         <jar destfile="${build.jarfiledest}" manifest="${manifest}">
             <fileset dir="${build.classes.dir}" />
