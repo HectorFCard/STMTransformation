@@ -55,7 +55,7 @@ public class ASTSnapshotClass extends ASTClassifier {
         addInv(acyclicScenareo);
         ASTConstraint sameSnap = new ASTConstraint("inv");
         sameSnap.setField("name", "sameSnapshot");
-        sameSnap.setField("body", name+".allInstances()->forAll(s | (self.nextT = s.nextT and self.beforeT = s.beforeT))");
+        sameSnap.setField("body", name+".allInstances()->forAll(s | (self.nextT = s.nextT and self.beforeT = s.beforeT) implies self = s)");
         addInv(sameSnap);
         ASTConstraint oneScenareo = new ASTConstraint("inv");
         oneScenareo.setField("name", "oneScenareo");
