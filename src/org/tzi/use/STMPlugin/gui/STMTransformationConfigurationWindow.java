@@ -34,11 +34,13 @@ import javax.swing.plaf.basic.BasicOptionPaneUI.ButtonActionListener;
 
 import org.tzi.use.config.Options;
 import org.tzi.use.gui.util.ExtFileFilter;
+//import org.tzi.use.main.MainWindow;
 import org.tzi.use.main.Session;
 import org.tzi.use.uml.mm.MModel;
 import org.tzi.use.uml.mm.ModelFactory;
 import org.tzi.use.uml.sys.MSystem;
 import org.tzi.use.parser.use.USECompiler;
+import org.tzi.use.main.shell.Shell;
 
 import org.tzi.use.STMPlugin.logic.JointTransformer;
 
@@ -323,6 +325,15 @@ public class STMTransformationConfigurationWindow extends JDialog {
                             fSession.setSystem(system);
                         }
                     });
+
+                    Shell shell = Shell.getInstance();
+
+                    if ("Upload .properties file".equals(configMethod.getSelectedItem())) {
+                        shell.processLineSafely("mv -validate "+propFileChooser.getSelectedFile().toString());
+                    }
+                    else {
+                        shell.processLineSafely("mv -validate");
+                    }   
                 }
             }
         });
