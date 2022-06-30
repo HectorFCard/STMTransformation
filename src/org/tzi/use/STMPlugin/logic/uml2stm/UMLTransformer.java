@@ -15,7 +15,7 @@ import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
 import org.eclipse.m2m.qvt.oml.*;
 import org.eclipse.uml2.uml.UMLPackage;
 import org.eclipse.uml2.uml.resource.UMLResource;
-import org.tzi.use.STMPlugin.logic.uml2stm.stm2use.XML2USEConverter;
+import org.tzi.use.STMPlugin.logic.xml2use.XML2USEConverter;
 
 import java.io.File;
 import java.io.IOException;
