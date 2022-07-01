@@ -42,6 +42,7 @@ import org.tzi.use.uml.sys.MSystem;
 import org.tzi.use.parser.use.USECompiler;
 import org.tzi.use.main.shell.Shell;
 
+import org.tzi.use.STMPlugin.logic.xml2use.XML2USEConverter;
 import org.tzi.use.STMPlugin.logic.JointTransformer;
 
 public class STMTransformationConfigurationWindow extends JDialog {
@@ -220,7 +221,7 @@ public class STMTransformationConfigurationWindow extends JDialog {
 		});
 
         transValPanel1.add(new JLabel("Enter .tocl File:"),getGBC(TV1SubRow, 0));
-        transValPanel1.add(fileLabelTOCL, getGBC(TV1SubRow, 1));
+        transValPanel1.add(fileLabelTOCLTV, getGBC(TV1SubRow, 1));
         transValPanel1.add(filechooserButtonTOCLTV, getGBC(TV1SubRow, 2));
         TV1SubRow++;
 
@@ -360,12 +361,117 @@ public class STMTransformationConfigurationWindow extends JDialog {
 
         //END of Transform & Validate sub-panel
 
+        //START of Transform XMI to USE
+        JPanel XMI2USEpanel = new JPanel(new GridBagLayout());
+
+        final JLabel fileLabelXMI2USE = new FilePathLabel();
+        fileLabelXMI2USE.setPreferredSize(new Dimension(300,20));
+        JButton filechooserButtonXMI2USE = new JButton("Select");//consider adding image icon
+        JFileChooser fileChooserXMI2USE = new JFileChooser(Options.getLastDirectory().toFile());
+        fileChooserXMI2USE.setFileFilter(new ExtFileFilter("uml","UML Model in XMI"));
+        fileChooserXMI2USE.setDialogTitle("Choose save file");
+        fileChooserXMI2USE.setMultiSelectionEnabled(false);
+        fileChooserXMI2USE.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String cmd = e.getActionCommand();
+				if(cmd.equals(JFileChooser.APPROVE_SELECTION)){
+					fileLabelXMI2USE.setText(fileChooserXMI2USE.getSelectedFile().getAbsolutePath());
+				}
+			}
+		});
+        filechooserButtonXMI2USE.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				fileChooserXMI2USE.showSaveDialog(STMTransformationConfigurationWindow.this);
+			}
+		});
+        
+        int XMI2USERow = 0;
+        XMI2USEpanel.add(new JLabel("Enter .uml File:"),getGBC(XMI2USERow, 0));
+        XMI2USEpanel.add(fileLabelXMI2USE, getGBC(XMI2USERow, 1));
+        XMI2USEpanel.add(filechooserButtonXMI2USE, getGBC(XMI2USERow, 2));
+        XMI2USERow++;
+
+        JCheckBox loadModel = new JCheckBox("Load model after transformation");
+        loadModel.setSelected(false);
+        loadModel.setToolTipText("<html>Loads the model to USE after it is transformed</html>");
+        XMI2USEpanel.add(loadModel, getGBC(XMI2USERow, 0));
+        XMI2USERow++;
+
+        JPanel buttonPanelXMI2USE = new JPanel(new GridBagLayout());
+        JButton transformButtonXMI2USE = new JButton("Transform");
+        transformButtonXMI2USE.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                File fUML = fileChooserXMI2USE.getSelectedFile();
+                //add something for checkbox
+                if (fUML == null) {
+                    JOptionPane.showMessageDialog(STMTransformationConfigurationWindow.this, "Please select a UML file!", "No File", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                File fileGenerated = null;
+
+                try {
+                    fileGenerated = XML2USEConverter.genUseSpec(fUML);
+                } catch(Exception ex) {
+                    ex.printStackTrace();
+                }
+                
+                if (loadModel.isSelected()) {
+                    if (fileGenerated.exists()) {
+                        //System.out.println(fileGenerated.getFileName());
+                        System.out.println("compiling specification " + fileGenerated.toString() + "...");
+                        PrintWriter logWriter = new PrintWriter(System.out);
+                        MModel model = null;
+                        try (InputStream iStream = Files.newInputStream(fileGenerated.toPath())) {
+                            model = USECompiler.compileSpecification(iStream, fileGenerated.toString(), logWriter, new ModelFactory());
+                            System.out.println("done.");
+                        } catch(IOException ex) {
+                            System.out.println("File `" + fileGenerated.toString() + "' not found.");
+                        }
+    
+                        final MSystem system;
+                        if (model != null) {
+                            System.out.println(model.getStats());
+                            system = new MSystem(model);
+                        } else {
+                            system = null;
+                        }
+                        
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                fSession.setSystem(system);
+                            }
+                        });
+                    }
+                }
+            }
+        });
+        JButton cancelButtonXMI2USE = new JButton("Cancel");
+        cancelButtonXMI2USE.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        });
+
+        buttonPanelXMI2USE.add(transformButtonXMI2USE, gbc);
+        buttonPanelXMI2USE.add(Box.createHorizontalStrut(5));//figure out what this means
+        buttonPanelXMI2USE.add(cancelButtonXMI2USE, gbc);
+        XMI2USEpanel.add(buttonPanelXMI2USE, getGBC(XMI2USERow,0,3,1));
+        XMI2USERow++;
+
+        //END of Transform XMI to USE
+
         CardLayout cardLay = new CardLayout();
         JPanel mainPanel = new JPanel(new BorderLayout());
         JPanel focusPanel = new JPanel(cardLay);
         //int row = 0;
 
-        final JComboBox<String> actionChoice = new JComboBox<String>(new String[]{ "Transform", "Transform & Validate"});
+        final JComboBox<String> actionChoice = new JComboBox<String>(new String[]{ "Transform", "Transform & Validate", "Convert XMI to USE file"});
         actionChoice.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -375,6 +481,9 @@ public class STMTransformationConfigurationWindow extends JDialog {
                     mainPanel.add(transValPanel1,getGBC(1,1));
                     pack();*/
                     cardLay.show(focusPanel,"trans&val");
+                }
+                else if ("Convert XMI to USE file".equals(actionChoice.getSelectedItem())) {
+                    cardLay.show(focusPanel,"xmi2use");
                 }
                 else {
                     /*mainPanel.remove(transValPanel1);
@@ -392,6 +501,7 @@ public class STMTransformationConfigurationWindow extends JDialog {
         //row++;
         focusPanel.add("trans",transformPanel);
         focusPanel.add("trans&val",transValPanel);
+        focusPanel.add("xmi2use",XMI2USEpanel);
 
         mainPanel.add(comboBoxPanel,BorderLayout.NORTH);
         mainPanel.add(focusPanel,BorderLayout.SOUTH);
