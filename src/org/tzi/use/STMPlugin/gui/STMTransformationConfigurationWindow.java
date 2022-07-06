@@ -54,6 +54,8 @@ public class STMTransformationConfigurationWindow extends JDialog {
     private JButton transformButton;
     private JButton cancelButton;
 
+    private AddTOCLDialog TOCLdlg = new AddTOCLDialog(STMTransformationConfigurationWindow.this);
+
     private final Session fSession;
 
     public STMTransformationConfigurationWindow(final JFrame parent, final Session session, final MModel model) {
@@ -127,6 +129,33 @@ public class STMTransformationConfigurationWindow extends JDialog {
         transformPanel.add(filechooserButtonTOCL, getGBC(subRow, 2));
         subRow++;
 
+        //Adding TOCL properties through typing
+        JButton addTOCLButton = new JButton("Add");
+        addTOCLButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                /*File fUML = fileChooserUML.getSelectedFile();
+                File fTOCL = fileChooserTOCL.getSelectedFile();
+                if (fUML == null) {
+                    JOptionPane.showMessageDialog(STMTransformationConfigurationWindow.this, "Please select a UML file!", "No File", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                if (fTOCL == null) { //consider modifying
+                    JOptionPane.showMessageDialog(STMTransformationConfigurationWindow.this, "Please select a TOCL file!", "No File", JOptionPane.ERROR_MESSAGE);
+                }
+                
+                dispose();
+                JointTransformer.transform(fUML, fTOCL);*/
+                //AddTOCLDialog TOCLdlg = new AddTOCLDialog(STMTransformationConfigurationWindow.this);
+                TOCLdlg.setVisible(true);
+            }
+        });
+
+        transformPanel.add(new JLabel("Create additional TOCL properties"),getGBC(subRow,0));
+        transformPanel.add(addTOCLButton,getGBC(subRow,2));
+        subRow++;
+
+        //Adding Transform and Cancel buttons
         JPanel buttonPanel = new JPanel(new GridBagLayout());
         transformButton = new JButton("Transform");
         transformButton.addActionListener(new ActionListener() {
@@ -461,6 +490,7 @@ public class STMTransformationConfigurationWindow extends JDialog {
         buttonPanelXMI2USE.add(transformButtonXMI2USE, gbc);
         buttonPanelXMI2USE.add(Box.createHorizontalStrut(5));//figure out what this means
         buttonPanelXMI2USE.add(cancelButtonXMI2USE, gbc);
+
         XMI2USEpanel.add(buttonPanelXMI2USE, getGBC(XMI2USERow,0,3,1));
         XMI2USERow++;
 
