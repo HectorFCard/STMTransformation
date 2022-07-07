@@ -141,19 +141,6 @@ public class STMTransformationConfigurationWindow extends JDialog {
         addTOCLButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                /*File fUML = fileChooserUML.getSelectedFile();
-                File fTOCL = fileChooserTOCL.getSelectedFile();
-                if (fUML == null) {
-                    JOptionPane.showMessageDialog(STMTransformationConfigurationWindow.this, "Please select a UML file!", "No File", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-                if (fTOCL == null) { //consider modifying
-                    JOptionPane.showMessageDialog(STMTransformationConfigurationWindow.this, "Please select a TOCL file!", "No File", JOptionPane.ERROR_MESSAGE);
-                }
-                
-                dispose();
-                JointTransformer.transform(fUML, fTOCL);*/
-                //AddTOCLDialog TOCLdlg = new AddTOCLDialog(STMTransformationConfigurationWindow.this);
                 TOCLdlgTransform.setVisible(true);
             }
         });
@@ -174,37 +161,31 @@ public class STMTransformationConfigurationWindow extends JDialog {
                     JOptionPane.showMessageDialog(STMTransformationConfigurationWindow.this, "Please select a UML file!", "No File", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                if (fTOCL == null) { //consider modifying
-                    JOptionPane.showMessageDialog(STMTransformationConfigurationWindow.this, "Please select a TOCL file!", "No File", JOptionPane.ERROR_MESSAGE);
-                }
 
-                Vector<String> additionalTOCL = TOCLdlgTransform.getTOCLProperties();
-                if (additionalTOCL.size() > 0) {
-                    try {
-                        System.out.println("there are additional tocl props");
-                        File toclFile = File.createTempFile("temporaryTOCLFile", ".tocl", fUML.getParentFile());
-                        toclFile.deleteOnExit();
+                try {
+                    Vector<String> additionalTOCL = TOCLdlgTransform.getTOCLProperties();
+                    File toclFile = File.createTempFile("temporaryTOCLFile", ".tocl", fUML.getParentFile());
+                    toclFile.deleteOnExit();
+
+                    if (fTOCL != null) {
                         Scanner toclFileScanner = new Scanner(fTOCL);
                         while (toclFileScanner.hasNextLine()) {
                             Files.writeString(toclFile.toPath(), toclFileScanner.nextLine()+"\n", StandardOpenOption.APPEND);
                         }
+                    }
+                    if (additionalTOCL.size() > 0) {
+                        System.out.println("there are additional tocl props");
                         Files.writeString(toclFile.toPath(), "\n\n--Additional TOCL Properties\n", StandardOpenOption.APPEND);
                         for (int i = 0; i < additionalTOCL.size(); i++) {
                             Files.writeString(toclFile.toPath(), (additionalTOCL.elementAt(i)+"\n\n"), StandardOpenOption.APPEND);
                         }
-                        dispose();
-                        JointTransformer.transform(fUML, toclFile);
-                    } 
-                    catch (IOException ioEx) {
-                        ioEx.printStackTrace();
                     }
-                }
-                else {
                     dispose();
-                JointTransformer.transform(fUML, fTOCL);
+                    JointTransformer.transform(fUML, toclFile);
+                } 
+                catch (IOException ioEx) {
+                    ioEx.printStackTrace();
                 }
-
-                
                 
             }
         });
@@ -287,6 +268,19 @@ public class STMTransformationConfigurationWindow extends JDialog {
         transValPanel1.add(filechooserButtonTOCLTV, getGBC(TV1SubRow, 2));
         TV1SubRow++;
 
+        //Adding TOCL properties through typing
+        JButton addTOCLButtonTV = new JButton("Add");
+        addTOCLButtonTV.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                TOCLdlgTV.setVisible(true);
+            }
+        });
+
+        transValPanel1.add(new JLabel("Create additional TOCL properties"),getGBC(TV1SubRow,0));
+        transValPanel1.add(addTOCLButtonTV,getGBC(TV1SubRow,2));
+        TV1SubRow++;
+
         //Choosing configuration method
         JPanel uploadPropPanel = new JPanel(new GridBagLayout());
 
@@ -352,52 +346,46 @@ public class STMTransformationConfigurationWindow extends JDialog {
             public void actionPerformed(ActionEvent e) {
                 File fUML = fileChooserUMLTV.getSelectedFile();
                 File fTOCL = fileChooserTOCLTV.getSelectedFile();
-                //add something for checkbox
+                Path fileCreated = null;
                 if (fUML == null) {
                     JOptionPane.showMessageDialog(STMTransformationConfigurationWindow.this, "Please select a UML file!", "No File", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                if (fTOCL == null) { //consider modifying
-                    JOptionPane.showMessageDialog(STMTransformationConfigurationWindow.this, "Please select a TOCL file!", "No File", JOptionPane.ERROR_MESSAGE);
-                }
-                
-                Path fileCreated = JointTransformer.transform(fUML, fTOCL);
-                if (Files.exists(fileCreated)) {
-                    System.out.println(fileCreated.getFileName());
-                    System.out.println("compiling specification " + fileCreated.toString() + "...");
-                    PrintWriter logWriter = new PrintWriter(System.out);
-                    MModel model = null;
-                    try (InputStream iStream = Files.newInputStream(fileCreated)) {
-                        model = USECompiler.compileSpecification(iStream, fileCreated.toAbsolutePath().toString(), logWriter, new ModelFactory());
-                        System.out.println("done.");
-                    } catch(IOException ex) {
-                        System.out.println("File `" + fileCreated.toAbsolutePath().toString() + "' not found.");
-                    }
 
-                    final MSystem system;
-                    if (model != null) {
-                        System.out.println(model.getStats());
-                        system = new MSystem(model);
-                    } else {
-                        system = null;
-                    }
-                    
-                    SwingUtilities.invokeLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            fSession.setSystem(system);
+                try {
+                    Vector<String> additionalTOCL = TOCLdlgTV.getTOCLProperties();
+                    File toclFile = File.createTempFile("temporaryTOCLFile", ".tocl", fUML.getParentFile());
+                    toclFile.deleteOnExit();
+
+                    if (fTOCL != null) {
+                        Scanner toclFileScanner = new Scanner(fTOCL);
+                        while (toclFileScanner.hasNextLine()) {
+                            Files.writeString(toclFile.toPath(), toclFileScanner.nextLine()+"\n", StandardOpenOption.APPEND);
                         }
-                    });
-
-                    Shell shell = Shell.getInstance();
-
-                    if ("Upload .properties file".equals(configMethod.getSelectedItem())) {
-                        shell.processLineSafely("mv -validate "+propFileChooser.getSelectedFile().toString());
                     }
-                    else {
-                        shell.processLineSafely("mv -validate");
-                    }   
+                    if (additionalTOCL.size() > 0) {
+                        System.out.println("there are additional tocl props");
+                        Files.writeString(toclFile.toPath(), "\n\n--Additional TOCL Properties\n", StandardOpenOption.APPEND);
+                        for (int i = 0; i < additionalTOCL.size(); i++) {
+                            Files.writeString(toclFile.toPath(), (additionalTOCL.elementAt(i)+"\n\n"), StandardOpenOption.APPEND);
+                        }
+                    }
+                    dispose();
+                    fileCreated = JointTransformer.transform(fUML, toclFile);
+                } 
+                catch (IOException ioEx) {
+                    ioEx.printStackTrace();
                 }
+                loadSystem(fileCreated);
+
+                Shell shell = Shell.getInstance();
+
+                if ("Upload .properties file".equals(configMethod.getSelectedItem())) {
+                    shell.processLineSafely("mv -validate "+propFileChooser.getSelectedFile().toString());
+                }
+                else {
+                    shell.processLineSafely("mv -validate");
+                }   
             }
         });
         JButton cancelButtonTV = new JButton("Cancel");
@@ -482,33 +470,7 @@ public class STMTransformationConfigurationWindow extends JDialog {
                 }
                 
                 if (loadModel.isSelected()) {
-                    if (fileGenerated.exists()) {
-                        //System.out.println(fileGenerated.getFileName());
-                        System.out.println("compiling specification " + fileGenerated.toString() + "...");
-                        PrintWriter logWriter = new PrintWriter(System.out);
-                        MModel model = null;
-                        try (InputStream iStream = Files.newInputStream(fileGenerated.toPath())) {
-                            model = USECompiler.compileSpecification(iStream, fileGenerated.toString(), logWriter, new ModelFactory());
-                            System.out.println("done.");
-                        } catch(IOException ex) {
-                            System.out.println("File `" + fileGenerated.toString() + "' not found.");
-                        }
-    
-                        final MSystem system;
-                        if (model != null) {
-                            System.out.println(model.getStats());
-                            system = new MSystem(model);
-                        } else {
-                            system = null;
-                        }
-                        
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                fSession.setSystem(system);
-                            }
-                        });
-                    }
+                    loadSystem(fileGenerated.toPath());
                 }
             }
         });
@@ -592,5 +554,34 @@ public class STMTransformationConfigurationWindow extends JDialog {
 		return gbc;
 	}
 
+    private void loadSystem(Path systemToLoad) {
+        if (Files.exists(systemToLoad)) {
+            System.out.println(systemToLoad.getFileName());
+            System.out.println("compiling specification " + systemToLoad.toString() + "...");
+            PrintWriter logWriter = new PrintWriter(System.out);
+            MModel model = null;
+            try (InputStream iStream = Files.newInputStream(systemToLoad)) {
+                model = USECompiler.compileSpecification(iStream, systemToLoad.toAbsolutePath().toString(), logWriter, new ModelFactory());
+                System.out.println("done.");
+            } catch(IOException ex) {
+                System.out.println("File `" + systemToLoad.toAbsolutePath().toString() + "' not found.");
+            }
+
+            final MSystem system;
+            if (model != null) {
+                System.out.println(model.getStats());
+                system = new MSystem(model);
+            } else {
+                system = null;
+            }
+            
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    fSession.setSystem(system);
+                }
+            });
+        }
+    }
     
 }
