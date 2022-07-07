@@ -49,11 +49,13 @@ public class ASTSnapshotClass extends ASTClassifier {
         getPre.addCondition(bodyCond);
         addOperation(getPre);
 
+        ASTClassifier b = new ASTClassifier();
+        b.setField("name", "Boolean");
         ASTQueryOperation sat = new ASTQueryOperation();
         sat.setField("name", "sat");
         sat.setField("lower", "0");
         sat.setField("upper", "1");
-        sat.setType(this);
+        sat.setType(b);
         bodyCond = new ASTConstraint("body");
         bodyCond.setField("body", "true");
         sat.addCondition(bodyCond);
