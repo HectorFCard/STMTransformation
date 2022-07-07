@@ -9,10 +9,13 @@ import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.io.FileWriter;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.Files;
 
 import javax.swing.BorderFactory; //new
@@ -45,6 +48,9 @@ import org.tzi.use.main.shell.Shell;
 import org.tzi.use.STMPlugin.logic.xml2use.XML2USEConverter;
 import org.tzi.use.STMPlugin.logic.JointTransformer;
 
+import java.util.Vector;
+import java.util.Scanner;
+
 public class STMTransformationConfigurationWindow extends JDialog {
     private static final long serialVersionUID = 1L;
 
@@ -54,7 +60,8 @@ public class STMTransformationConfigurationWindow extends JDialog {
     private JButton transformButton;
     private JButton cancelButton;
 
-    private AddTOCLDialog TOCLdlg = new AddTOCLDialog(STMTransformationConfigurationWindow.this);
+    private AddTOCLDialog TOCLdlgTransform = new AddTOCLDialog(STMTransformationConfigurationWindow.this);
+    private AddTOCLDialog TOCLdlgTV = new AddTOCLDialog(STMTransformationConfigurationWindow.this);
 
     private final Session fSession;
 
@@ -147,7 +154,7 @@ public class STMTransformationConfigurationWindow extends JDialog {
                 dispose();
                 JointTransformer.transform(fUML, fTOCL);*/
                 //AddTOCLDialog TOCLdlg = new AddTOCLDialog(STMTransformationConfigurationWindow.this);
-                TOCLdlg.setVisible(true);
+                TOCLdlgTransform.setVisible(true);
             }
         });
 
@@ -170,9 +177,35 @@ public class STMTransformationConfigurationWindow extends JDialog {
                 if (fTOCL == null) { //consider modifying
                     JOptionPane.showMessageDialog(STMTransformationConfigurationWindow.this, "Please select a TOCL file!", "No File", JOptionPane.ERROR_MESSAGE);
                 }
-                
-                dispose();
+
+                Vector<String> additionalTOCL = TOCLdlgTransform.getTOCLProperties();
+                if (additionalTOCL.size() > 0) {
+                    try {
+                        System.out.println("there are additional tocl props");
+                        File toclFile = File.createTempFile("temporaryTOCLFile", ".tocl", fUML.getParentFile());
+                        toclFile.deleteOnExit();
+                        Scanner toclFileScanner = new Scanner(fTOCL);
+                        while (toclFileScanner.hasNextLine()) {
+                            Files.writeString(toclFile.toPath(), toclFileScanner.nextLine()+"\n", StandardOpenOption.APPEND);
+                        }
+                        Files.writeString(toclFile.toPath(), "\n\n--Additional TOCL Properties\n", StandardOpenOption.APPEND);
+                        for (int i = 0; i < additionalTOCL.size(); i++) {
+                            Files.writeString(toclFile.toPath(), (additionalTOCL.elementAt(i)+"\n\n"), StandardOpenOption.APPEND);
+                        }
+                        dispose();
+                        JointTransformer.transform(fUML, toclFile);
+                    } 
+                    catch (IOException ioEx) {
+                        ioEx.printStackTrace();
+                    }
+                }
+                else {
+                    dispose();
                 JointTransformer.transform(fUML, fTOCL);
+                }
+
+                
+                
             }
         });
         cancelButton = new JButton("Cancel");

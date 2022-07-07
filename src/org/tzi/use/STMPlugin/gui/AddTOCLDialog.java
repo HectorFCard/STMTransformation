@@ -17,11 +17,7 @@ import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
-import org.tzi.use.STMPlugin.logic.tocl2ocl.TOCLLexer;
-import org.tzi.use.STMPlugin.logic.tocl2ocl.TOCLParser;
-import org.antlr.v4.runtime.CommonTokenStream;
+import org.tzi.use.STMPlugin.gui.AddTOCLErrorListener;
 
 import java.util.Vector;
 
@@ -77,22 +73,19 @@ public class AddTOCLDialog extends JDialog  {
         addBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                CharStream input = null;
-                input = CharStreams.fromString(toclProperties.getText());
-                TOCLLexer lexer = new TOCLLexer(input);
-                CommonTokenStream tokens = new CommonTokenStream(lexer);
-                TOCLParser parser = new TOCLParser(tokens);
                 AddTOCLErrorListener parserErrorListener = new AddTOCLErrorListener(feedBack);
                 AddTOCLErrorListener lexerErrorListener = new AddTOCLErrorListener(feedBack);
-                parser.removeErrorListeners(); // remove ConsoleErrorListener
-                parser.addErrorListener(parserErrorListener); // add ours
-                lexer.removeErrorListeners();
-                lexer.addErrorListener(lexerErrorListener);
-                parser.expressionInOcl();
+                boolean isValidinput = AddTOCLHandler.verifyCorrectInput(toclProperties.getText(), feedBack, parserErrorListener, lexerErrorListener);
                 
-                if (!(parserErrorListener.getErrorResult() || lexerErrorListener.getErrorResult())) { //handle lexer error
+                if (!(parserErrorListener.getErrorResult() && lexerErrorListener.getErrorResult())) {
+
+                }
+                else if (isValidinput) { 
                     feedBack.setText("Success!\n");
                     toclPropertyList.add(toclProperties.getText());
+                }
+                else {
+                    feedBack.setText("Please enter an invariant. Check \"Help\" for more details.");
                 }               
             }
         });
@@ -116,6 +109,7 @@ public class AddTOCLDialog extends JDialog  {
             public void actionPerformed(ActionEvent e) {
                 //add pop up window that asks user if they are sure they want to clear previous additions
                 toclPropertyList.clear();
+                feedBack.setText("All the TOCL properties created have been cleared!");
             }
         });
 

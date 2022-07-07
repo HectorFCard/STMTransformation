@@ -7,7 +7,7 @@ import javax.swing.JTextArea;
 
 public class AddTOCLErrorListener extends BaseErrorListener {
     private final JTextArea outputLocation;
-    private boolean errorResult = false;
+    private boolean errorFree = true;
 
     AddTOCLErrorListener(JTextArea outputLog) {
         outputLocation = outputLog;
@@ -21,15 +21,15 @@ public class AddTOCLErrorListener extends BaseErrorListener {
     {
         outputLocation.setText("line "+line+":"+charPositionInLine+" at "+
                            offendingSymbol+": "+msg);
-                           errorResult = true;
+                           errorFree = false;
     }
 
     public void resetErrorResult() {
-        errorResult = false;
+        errorFree = true;
     }
 
     public boolean getErrorResult() {
-        return errorResult;
+        return errorFree;
     }
 
 }
