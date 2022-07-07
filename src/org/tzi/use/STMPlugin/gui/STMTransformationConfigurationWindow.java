@@ -37,19 +37,28 @@ import javax.swing.plaf.basic.BasicOptionPaneUI.ButtonActionListener;
 
 import org.tzi.use.config.Options;
 import org.tzi.use.gui.util.ExtFileFilter;
-//import org.tzi.use.main.MainWindow;
+import org.tzi.use.gui.main.MainWindow;
 import org.tzi.use.main.Session;
 import org.tzi.use.uml.mm.MModel;
 import org.tzi.use.uml.mm.ModelFactory;
 import org.tzi.use.uml.sys.MSystem;
 import org.tzi.use.parser.use.USECompiler;
 import org.tzi.use.main.shell.Shell;
+import org.tzi.use.runtime.shell.IPluginShellCmdDelegate;
 
 import org.tzi.use.STMPlugin.logic.xml2use.XML2USEConverter;
 import org.tzi.use.STMPlugin.logic.JointTransformer;
 
+import org.tzi.use.kodkod.plugin.gui.ModelValidatorConfigurationWindow;
+import org.tzi.use.kodkod.plugin.PluginModelFactory;
+import org.tzi.kodkod.model.iface.IModel;
+import org.tzi.use.kodkod.plugin.KodkodValidateCmd;
+
 import java.util.Vector;
 import java.util.Scanner;
+import java.util.ArrayList;
+
+import org.tzi.use.uml.ocl.expr.Expression;
 
 public class STMTransformationConfigurationWindow extends JDialog {
     private static final long serialVersionUID = 1L;
@@ -64,6 +73,7 @@ public class STMTransformationConfigurationWindow extends JDialog {
     private AddTOCLDialog TOCLdlgTV = new AddTOCLDialog(STMTransformationConfigurationWindow.this);
 
     private final Session fSession;
+    private MModel mModel = null;
 
     public STMTransformationConfigurationWindow(final JFrame parent, final Session session, final MModel model) {
         super(parent, "STM Transformation Options");
@@ -384,7 +394,20 @@ public class STMTransformationConfigurationWindow extends JDialog {
                     shell.processLineSafely("mv -validate "+propFileChooser.getSelectedFile().toString());
                 }
                 else {
-                    shell.processLineSafely("mv -validate");
+                    IModel validationModel = PluginModelFactory.INSTANCE.getModel(mModel);
+                    PluginModelFactory.INSTANCE.registerForSession(fSession);
+                    
+                    ModelValidatorConfigurationWindow modelValidatorConfigurationWindow = new ModelValidatorConfigurationWindow(MainWindow.instance(), validationModel, mModel.filename(), new ArrayList<Expression>() );
+
+                    if (modelValidatorConfigurationWindow.getChosenConfiguration() != null) {
+                        if (modelValidatorConfigurationWindow.isReadyToValidate()) {
+                            ValidationClass valClass = new ValidationClass();
+                            valClass.performValidation(modelValidatorConfigurationWindow);
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(MainWindow.instance(), "No Configuration loaded!");
+                    }
+                    //ModelValidatorConfigurationWindow MVConfigWindow = new ModelValidatorConfigurationWindow(MainWindow.instance(),,mModel.filename());
                 }   
             }
         });
@@ -559,18 +582,18 @@ public class STMTransformationConfigurationWindow extends JDialog {
             System.out.println(systemToLoad.getFileName());
             System.out.println("compiling specification " + systemToLoad.toString() + "...");
             PrintWriter logWriter = new PrintWriter(System.out);
-            MModel model = null;
+            //MModel model = null;
             try (InputStream iStream = Files.newInputStream(systemToLoad)) {
-                model = USECompiler.compileSpecification(iStream, systemToLoad.toAbsolutePath().toString(), logWriter, new ModelFactory());
+                mModel = USECompiler.compileSpecification(iStream, systemToLoad.toAbsolutePath().toString(), logWriter, new ModelFactory());
                 System.out.println("done.");
             } catch(IOException ex) {
                 System.out.println("File `" + systemToLoad.toAbsolutePath().toString() + "' not found.");
             }
 
             final MSystem system;
-            if (model != null) {
-                System.out.println(model.getStats());
-                system = new MSystem(model);
+            if (mModel != null) {
+                System.out.println(mModel.getStats());
+                system = new MSystem(mModel);
             } else {
                 system = null;
             }
@@ -583,5 +606,11 @@ public class STMTransformationConfigurationWindow extends JDialog {
             });
         }
     }
-    
+    public class ValidationClass extends KodkodValidateCmd {
+        public void performValidation(ModelValidatorConfigurationWindow MVwindow) {
+            //System.out.println("made it to valclass safely");
+            initialize(fSession);
+            extractConfigureAndValidate(MVwindow.getChosenConfiguration());
+        }
+    }
 }
