@@ -49,6 +49,16 @@ public class ASTSnapshotClass extends ASTClassifier {
         getPre.addCondition(bodyCond);
         addOperation(getPre);
 
+        ASTQueryOperation sat = new ASTQueryOperation();
+        sat.setField("name", "sat");
+        sat.setField("lower", "0");
+        sat.setField("upper", "1");
+        sat.setType(this);
+        bodyCond = new ASTConstraint("body");
+        bodyCond.setField("body", "true");
+        sat.addCondition(bodyCond);
+        addOperation(sat);
+
         ASTConstraint acyclicScenareo = new ASTConstraint("inv");
         acyclicScenareo.setField("name", "acyclicScenareo");
         acyclicScenareo.setField("body", "self.getPost()->excludes(self) and self.getPre()->excludes(self)");
