@@ -61,10 +61,10 @@ public class ASTSnapshotClass extends ASTClassifier {
         ASTParameter exp = new ASTParameter();
         exp.setField("name", "e");
         exp.setType(oclAny);
+        sat.addParameter(exp);
         bodyCond = new ASTConstraint("body");
         bodyCond.setField("body", "true");
         sat.addCondition(bodyCond);
-        sat.addParameter(exp);
         addOperation(sat);
 
         ASTConstraint acyclicScenareo = new ASTConstraint("inv");
