@@ -70,7 +70,7 @@ public class XML2USEConverter {
       }
     }
         
-    public File genUseSpec(File inputFile) throws Exception {
+    public static File genUseSpec(File inputFile) throws Exception {
       String inputFilePath = inputFile.getAbsolutePath();
 
       CharStream input = CharStreams.fromFileName(inputFilePath);
