@@ -81,7 +81,7 @@ public class ASTSnapshotClass extends ASTClassifier {
         addInv(oneScenareo);
         ASTConstraint firstLast = new ASTConstraint("inv");
         firstLast.setField("name", "firstLast");
-        firstLast.setField("body", name+".allInstances()->size() > 1 implies (self.beforeT.oclIsUndefined() implies self.oclIsTypeOf(FirstSnapshot) and self.nextT.oclIsUndefined() implies self.oclIsTypeOf(LastSnapshot))");
+        firstLast.setField("body", name+".allInstances()->size() > 1 implies ((self.beforeT.oclIsUndefined() implies self.oclIsTypeOf(FirstSnapshot)) and (self.nextT.oclIsUndefined() implies self.oclIsTypeOf(LastSnapshot)))");
         addInv(firstLast);
     }
 
