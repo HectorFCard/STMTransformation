@@ -19,5 +19,11 @@
                 class="org.tzi.use.STMPlugin.STMPluginCMD"
                 id="org.tzi.use.STMPlugin.STMPluginCMD">
         </command>
+        <command shellcmd="loadXmi"
+                 label="LoadXMI"
+                 help="Creates and loads a USE specification file from a UML class diagram stored in an XMI file"
+                 class="org.tzi.use.STMPlugin.STMPluginCMD"
+                 id="org.tzi.use.STMPlugin.STMPluginCMD">
+        </command>
     </commands>
 </plugin>
