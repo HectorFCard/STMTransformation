@@ -16,14 +16,12 @@ import org.tzi.use.uml.mm.ModelFactory;
 import org.tzi.use.uml.sys.MSystem;
 import org.tzi.use.util.Log;
 
-import javax.swing.*;
-
 public class STMPluginCMD implements IPluginShellCmdDelegate {
 
     @Override
     public void performCommand(IPluginShellCmd pluginCommand) {
         switch (pluginCommand.getCmd()) {
-            case "stmTransform": {
+            case "stmTransform" -> {
                 PrintStream out = Log.out();
                 if (!pluginCommand.getSession().hasSystem()) {
                     out.println("No model loaded. The transformation is based on the currently loaded model. Please load a model.");
@@ -40,9 +38,9 @@ public class STMPluginCMD implements IPluginShellCmdDelegate {
                 File inputUMLFile = new File(arguments[0]);
                 File inputTOCLFile = arguments.length > 1 ? new File(arguments[1]) : null;
 
-                JointTransformer.transform(inputUMLFile, inputTOCLFile, optimize, arguments[4]);
+                JointTransformer.transform(inputUMLFile, inputTOCLFile, optimize, optimize ? arguments[3] : null);
             }
-            case "loadXmi": {
+            case "loadXmi" -> {
                 PrintStream out = Log.out();
                 String[] arguments = pluginCommand.getCmdArgumentList();
                 if (arguments.length < 1) {
