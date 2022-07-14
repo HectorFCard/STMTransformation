@@ -8,7 +8,10 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Stack;
 
 
@@ -239,26 +242,6 @@ public class TOCLTranslator {
         }
     }
 
-    public static String translate(String text) {
-        CharStream input = null;
-        try {
-            input = CharStreams.fromStream(new ByteArrayInputStream(text.getBytes()));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        TOCLLexer lexer = new TOCLLexer(input);
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        TOCLParser parser = new TOCLParser(tokens);
-        parser.setBuildParseTree(true);
-        ParseTree tree = parser.expressionInOcl();
-
-        ParseTreeWalker walker = new ParseTreeWalker();
-        OCLEmitter converter = new OCLEmitter(parser);
-        walker.walk(converter, tree);
-
-        return converter.getOCL(tree);
-    }
         
     public static String translate(File infile) {
         CharStream input = null;
