@@ -94,7 +94,7 @@ public class ModelOptimizer {
             tmpRElems.addAll(tmpIRElems);
 
             //Separate invariants specific to the STM
-            if (i.name().equals("uniqueIds") || i.name().startsWith("validLinking")) {
+            if (i.name().equals("validContext") || i.name().equals("uniqueIds") || i.name().startsWith("validLinking")) {
                 wfInvElems.put(i, tmpRElems);
                 continue;
             }
@@ -111,9 +111,11 @@ public class ModelOptimizer {
 
         //Add WFInvs only for referred elements
         for (MClassInvariant i : wfInvElems.keySet()) {
-            if (i.name().equals("uniqueIds") && relatedElements.contains(i.cls())) {
-                relatedElements.add(i);
-                relatedElements.addAll(wfInvElems.get(i));
+            if (relatedElements.contains(i.cls())) {
+                if (i.name().equals("validContext") || i.name().equals("uniqueIds")) {
+                    relatedElements.add(i);
+                    relatedElements.addAll(wfInvElems.get(i));
+                }
             }
             else if (i.name().startsWith("validLiking_")) {
                 String associationName = i.name().substring(13);

@@ -191,9 +191,9 @@ public class STMModel extends ASTModel {
                     
                     newAssociations.add(beforeTrans);
                     newAssociations.add(afterTrans);
-
-                    ((ASTTransitionClass) e).doFinalTasks();
                 }
+
+                ((ASTTransitionClass) e).doFinalTasks();
             }
             else if (e instanceof ASTAssociation) {
                 Boolean allComponents = true;
