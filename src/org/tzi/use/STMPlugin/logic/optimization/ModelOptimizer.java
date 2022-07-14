@@ -73,6 +73,12 @@ public class ModelOptimizer {
         }
         relatedElements.addAll(IRElems);
 
+        for (MModelElement e : IRElems) {
+            if (e instanceof MClass && ((MClass) e).conformsTo(inputModel.getClass("Transition"))) {
+                relatedElements.addAll(((MClass) e).allAttributes());
+            }
+        }
+
         //Find related invariants
         HashSet<MClassInvariant> modelInvs = new HashSet<MClassInvariant>(inputModel.classInvariants());
         HashMap<MClassInvariant, HashSet<MModelElement>> wfInvElems = new HashMap<MClassInvariant, HashSet<MModelElement>>();
@@ -94,7 +100,7 @@ public class ModelOptimizer {
             tmpRElems.addAll(tmpIRElems);
 
             //Separate invariants specific to the STM
-            if (i.name().equals("validContext") || i.name().equals("uniqueIds") || i.name().startsWith("validLinking")) {
+            if (i.name().equals("uniqueIds") || i.name().startsWith("validLinking")) {
                 wfInvElems.put(i, tmpRElems);
                 continue;
             }
@@ -111,11 +117,9 @@ public class ModelOptimizer {
 
         //Add WFInvs only for referred elements
         for (MClassInvariant i : wfInvElems.keySet()) {
-            if (relatedElements.contains(i.cls())) {
-                if (i.name().equals("validContext") || i.name().equals("uniqueIds")) {
-                    relatedElements.add(i);
-                    relatedElements.addAll(wfInvElems.get(i));
-                }
+            if (i.name().equals("uniqueIds") && relatedElements.contains(i.cls())) {
+                relatedElements.add(i);
+                relatedElements.addAll(wfInvElems.get(i));
             }
             else if (i.name().startsWith("validLiking_")) {
                 String associationName = i.name().substring(13);

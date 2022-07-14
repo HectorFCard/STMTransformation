@@ -32,7 +32,8 @@ public class JointTransformer {
         }
 
         if (optimize) {
-            useFilePath = ModelOptimizer.optimize(useFilePath.toFile(), propertyForOptimization).toPath();
+            String translatedProperty = TOCLTranslator.translate(propertyForOptimization);
+            useFilePath = ModelOptimizer.optimize(useFilePath.toFile(), translatedProperty).toPath();
         }
 
         return useFilePath;
