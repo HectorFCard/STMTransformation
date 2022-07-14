@@ -25,6 +25,6 @@ public class ASTConstraint {
     }
 
     public String toString() {
-        return (!type.equals("body") ? type+" "+name+": " : "")+body+"\n";
+        return (!type.equals("body") ? type+(!name.equals("") ? " "+name : "")+": " : "")+body+"\n";
     }
 }

@@ -8,10 +8,18 @@ public class ASTTransitionClass extends ASTClassifier {
     public Boolean isParentClass = false;
 
     public void doFinalTasks() {
-        ASTConstraint sameTrans = new ASTConstraint("inv");
-        sameTrans.setField("name", "sameTransition");
-        sameTrans.setField("body", name+".allInstances()->forAll(t : "+name+" | (self.nextS = t.nextS and self.beforeS = t.beforeS) implies self = t)");
-        addInv(sameTrans);
+        if (isParentClass) {
+            ASTConstraint sameTrans = new ASTConstraint("inv");
+            sameTrans.setField("name", "sameTransition");
+            sameTrans.setField("body", name + ".allInstances()->forAll(t : " + name + " | (self.nextS = t.nextS and self.beforeS = t.beforeS) implies self = t)");
+            addInv(sameTrans);
+            return;
+        }
+
+        ASTConstraint validContext = new ASTConstraint("inv");
+        validContext.setField("name", "validContext");
+        validContext.setField("body", "self.transitionContext.snapshot = self.beforeS");
+        addInv(validContext);
     }
     
     public void setField(String fieldName, String fieldValue) {

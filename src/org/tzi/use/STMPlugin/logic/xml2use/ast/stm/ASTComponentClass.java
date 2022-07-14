@@ -7,12 +7,12 @@ public class ASTComponentClass extends ASTClassifier {
     ArrayList<ASTQueryOperation> queryOps = new ArrayList<ASTQueryOperation>();
     ArrayList<ASTConstraint> invariants = new ArrayList<ASTConstraint>();
 
-    public void doFinalTasks() {
+    public void doFinalTasks(ASTSnapshotClass e) {
         String className =  name.toLowerCase();
         String varName = className.substring(0, 1);
 
         ASTProperty id = new ASTProperty();
-        id.setField("name", "_objectId");
+        id.setField("name", "snapshotObjectId");
         id.setField("lower", "0");
         id.setField("upper", "1");
         ASTClassifier _int = new ASTClassifier();
@@ -24,7 +24,7 @@ public class ASTComponentClass extends ASTClassifier {
         getCurrSnap.setField("name", "getCurrentSnapshot");
         getCurrSnap.setField("lower", "1");
         getCurrSnap.setField("upper", "1");
-        getCurrSnap.setField("type", "0#0");
+        getCurrSnap.setType(e);
         ASTConstraint bodyCond = new ASTConstraint("body");
         bodyCond.setField("body", "self.snapshot");
         getCurrSnap.addCondition(bodyCond);
@@ -38,7 +38,7 @@ public class ASTComponentClass extends ASTClassifier {
         bodyCond = new ASTConstraint("body");
         bodyCond.setField("body",
             "self.snapshot.getNext()."+className+
-            "->any("+varName+" | self._objectId = "+varName+"._objectId)");
+            "->any("+varName+" | self.snapshotObjectId = "+varName+".snapshotObjectId)");
         getNext.addCondition(bodyCond);
         addOperation(getNext);
 
@@ -60,7 +60,7 @@ public class ASTComponentClass extends ASTClassifier {
         bodyCond = new ASTConstraint("body");
         bodyCond.setField("body",
             "self.snapshot.getPrevious()."+className+
-            "->any("+varName+" | self._objectId = "+varName+"._objectId)");
+            "->any("+varName+" | self.snapshotObjectId = "+varName+".snapshotObjectId)");
         getPrevious.addCondition(bodyCond);
         addOperation(getPrevious);
 
@@ -74,9 +74,25 @@ public class ASTComponentClass extends ASTClassifier {
         getPre.addCondition(bodyCond);
         addOperation(getPre);
 
+        ASTQueryOperation atSnapshot = new ASTQueryOperation();
+        atSnapshot.setField("name", "atSnapshot");
+        atSnapshot.setField("lower", "0");
+        atSnapshot.setField("upper", "1");
+        atSnapshot.setType(this);
+        ASTParameter refSnap = new ASTParameter();
+        refSnap.setField("name", "refSnap");
+        refSnap.setType(e);
+        atSnapshot.addParameter(refSnap);
+        bodyCond = new ASTConstraint("body");
+        bodyCond.setField("body",
+                "refSnap."+className+
+                "->any("+varName+" | self.snapshotObjectId = "+varName+".snapshotObjectId)");
+        atSnapshot.addCondition(bodyCond);
+        addOperation(atSnapshot);
+
         ASTConstraint uniqueIds = new ASTConstraint("inv");
         uniqueIds.setField("name", "uniqueIds");
-        uniqueIds.setField("body", name+".allInstances()->forAll("+varName+" : "+name+" | "+varName+"._objectId = self._objectId implies "+varName+" = self)");
+        uniqueIds.setField("body", name+".allInstances()->forAll("+varName+" : "+name+" | ("+varName+".snapshot = self.snapshot and "+varName+".snapshotObjectId = self.snapshotObjectId) implies "+varName+" = self)");
         addInv(uniqueIds);
     }
 
