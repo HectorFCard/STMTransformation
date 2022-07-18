@@ -25,7 +25,9 @@ public class ASTAssociation extends ASTClassifier {
         for (ASTProperty m : memberEnds) {
             memEnds = memEnds.concat(m.getType().getName()+
                 "["+((m.getLower() != m.getUpper()) ? m.getLower()+".." : "")
-                +((m.getUpper() > -1) ? m.getUpper() : "*")+"] role "+m.getName()+"\n");
+                +((m.getUpper() > -1) ? m.getUpper() : "*")+"] role "+m.getName()
+                +(m.getRedefines() != null ? " redefines "+m.getRedefines().getName() : "")
+                +(m.getSubsets() != null ? " subsets "+m.getSubsets() : "")+"\n");
             if (m.aggregationKind().equals("composite")) aggKind = "composition ";
             else if (m.aggregationKind().equals("shared")) aggKind = "aggregation ";
         }

@@ -87,7 +87,7 @@ mapping Class::Class2SnapshotComponent() : SnapshotComponent{
 	queryOperations += self.ownedOperation->select(o | o.isQuery = true)->map QueryOperation2Operation();
 	Transition_.transitionSubClasses += self.ownedOperation->select(o | o.isQuery = false)->map Operation2TransitionSubclass();
 	generalization += self.generalization->map Generalization2Generalization();
-	attributes += new STM::Property("snapshot", STM::AggregationKind::composite, Snapshot, 1, 1);
+	isAbstract := self.isAbstract;
 	--var classProp := new STM::Property("snapshot", STM::AggregationKind::composite, Snapshot, 1, 1);
 	--var snapProp := new STM::Property(name, STM::AggregationKind::composite, Snapshot, 1, -1);
 	--new STM::Association("Snapshot" + name, classProp, snapProp);
@@ -100,7 +100,7 @@ mapping UML::AssociationClass::AssocClass2STMAssocClass() : STM::SnapshotAssocCl
 	queryOperations += self.ownedOperation->select(o | o.isQuery = true)->map QueryOperation2Operation();
 	Transition_.transitionSubClasses += self.ownedOperation->select(o | o.isQuery = false)->map Operation2TransitionSubclass();
 	generalization += self.generalization->map Generalization2Generalization();
-	attributes += new STM::Property("snapshot", STM::AggregationKind::composite, Snapshot, 1, 1);
+	isAbstract := self.isAbstract;
 	ownedEnd += self.ownedEnd->map ClassProperty2STMProperty();
 	memberEnd += self.memberEnd->map ClassProperty2STMProperty();
 	--var classProp := new STM::Property("snapshot", STM::AggregationKind::composite, Snapshot, 1, 1);

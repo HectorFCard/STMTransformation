@@ -1,6 +1,8 @@
 // Generated from TOCLParser.g4 by ANTLR 4.9.3
 package org.tzi.use.STMPlugin.logic.tocl2ocl;
 
+        import java.util.ArrayList;
+
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -784,13 +786,13 @@ public class TOCLParserBaseListener implements TOCLParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterToclExpression(TOCLParser.ToclExpressionContext ctx) { }
+	@Override public void enterToclOperatorExpression(TOCLParser.ToclOperatorExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitToclExpression(TOCLParser.ToclExpressionContext ctx) { }
+	@Override public void exitToclOperatorExpression(TOCLParser.ToclOperatorExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -868,13 +870,25 @@ public class TOCLParserBaseListener implements TOCLParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNextOperationCallExp(TOCLParser.NextOperationCallExpContext ctx) { }
+	@Override public void enterIsMarkedNext(TOCLParser.IsMarkedNextContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNextOperationCallExp(TOCLParser.NextOperationCallExpContext ctx) { }
+	@Override public void exitIsMarkedNext(TOCLParser.IsMarkedNextContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterToclOpCallExp(TOCLParser.ToclOpCallExpContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitToclOpCallExp(TOCLParser.ToclOpCallExpContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

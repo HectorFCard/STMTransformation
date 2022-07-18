@@ -1,6 +1,8 @@
 // Generated from TOCLParser.g4 by ANTLR 4.9.3
 package org.tzi.use.STMPlugin.logic.tocl2ocl;
 
+import java.util.ArrayList;
+
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 /**
@@ -649,15 +651,15 @@ public interface TOCLParserListener extends ParseTreeListener {
 	 */
 	void exitParameters(TOCLParser.ParametersContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link TOCLParser#toclExpression}.
+	 * Enter a parse tree produced by {@link TOCLParser#toclOperatorExpression}.
 	 * @param ctx the parse tree
 	 */
-	void enterToclExpression(TOCLParser.ToclExpressionContext ctx);
+	void enterToclOperatorExpression(TOCLParser.ToclOperatorExpressionContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link TOCLParser#toclExpression}.
+	 * Exit a parse tree produced by {@link TOCLParser#toclOperatorExpression}.
 	 * @param ctx the parse tree
 	 */
-	void exitToclExpression(TOCLParser.ToclExpressionContext ctx);
+	void exitToclOperatorExpression(TOCLParser.ToclOperatorExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link TOCLParser#nextExp}.
 	 * @param ctx the parse tree
@@ -719,13 +721,23 @@ public interface TOCLParserListener extends ParseTreeListener {
 	 */
 	void exitSometimePastExp(TOCLParser.SometimePastExpContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link TOCLParser#nextOperationCallExp}.
+	 * Enter a parse tree produced by {@link TOCLParser#isMarkedNext}.
 	 * @param ctx the parse tree
 	 */
-	void enterNextOperationCallExp(TOCLParser.NextOperationCallExpContext ctx);
+	void enterIsMarkedNext(TOCLParser.IsMarkedNextContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link TOCLParser#nextOperationCallExp}.
+	 * Exit a parse tree produced by {@link TOCLParser#isMarkedNext}.
 	 * @param ctx the parse tree
 	 */
-	void exitNextOperationCallExp(TOCLParser.NextOperationCallExpContext ctx);
+	void exitIsMarkedNext(TOCLParser.IsMarkedNextContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link TOCLParser#toclOpCallExp}.
+	 * @param ctx the parse tree
+	 */
+	void enterToclOpCallExp(TOCLParser.ToclOpCallExpContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link TOCLParser#toclOpCallExp}.
+	 * @param ctx the parse tree
+	 */
+	void exitToclOpCallExp(TOCLParser.ToclOpCallExpContext ctx);
 }

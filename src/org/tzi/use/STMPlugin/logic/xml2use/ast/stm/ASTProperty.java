@@ -10,6 +10,8 @@ public class ASTProperty {
     Integer upper = 1;
     Boolean isDerived = false;
     String aggregation = "none";
+    String subsets = null;
+    ASTProperty redefines = null;
 
     public void setField(String fieldName, String fieldValue) {
         if (fieldName.equals("name")) name = fieldValue;
@@ -21,6 +23,22 @@ public class ASTProperty {
     }
 
     public String getName() { return name; }
+
+    public void setSubsets(String s) {
+        subsets = s;
+    }
+
+    public String getSubsets() {
+        return subsets;
+    }
+
+    public void setRedefines(ASTProperty p) {
+        redefines = p;
+    }
+
+    public ASTProperty getRedefines() {
+        return redefines;
+    }
 
     public void setType(ASTClassifier t) { type = t; }
     

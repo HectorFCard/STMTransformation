@@ -148,7 +148,20 @@ public class STMModel extends ASTModel {
                     classEnd.setField("upper", "-1");
                     classEnd.setField("aggregation", "composite");
                     classEnd.setType(c);
-                    newComp.addMemberEnds(snapEnd);
+                    if (c.getSuperType() != null) {
+                        ASTProperty redefSnapEnd = new ASTProperty();
+                        redefSnapEnd.setField("name", newComp.getName().toLowerCase());
+                        redefSnapEnd.setField("lower", "1");
+                        redefSnapEnd.setField("upper", "1");
+                        redefSnapEnd.setType(e);
+                        redefSnapEnd.setRedefines(snapEnd);
+                        newComp.addMemberEnds(redefSnapEnd);
+
+                        classEnd.setSubsets(c.getSuperType().getName().toLowerCase());
+                    }
+                    else {
+                        newComp.addMemberEnds(snapEnd);
+                    }
                     newComp.addMemberEnds(classEnd);
 
                     newAssociations.add(newComp);

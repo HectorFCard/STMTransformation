@@ -24,7 +24,7 @@ oclExpression[Environment env] returns [ASTOclExpression ast]
         | let=letExp[$env] { $ast = $let.ast; }
         //| oclMessageExp
         //| i=ifExp[$env] { $ast = $i.ast; }
-        //| t=toclExpression[$env]
+        //| t=toclOperatorExpression[$env]
         | op=binaryOperationExp[$env] { $ast = $op.ast; }
         ;
 
@@ -200,13 +200,14 @@ primaryExp[Environment env] returns [ASTOclExpression ast]
         | varExp[$env]
         | callExp[$env, null]
         | ifExp[$env]
-        | toclExpression[$env]
+        | toclOperatorExpression[$env]
         | LPAREN oclExpression[$env] RPAREN
         ;
 
 callExp[Environment env, ASTOclExpression src] returns [ASTCallExp ast]
         : fCallExp=featureCallExp[$env, $src] { $ast = $fCallExp.ast; }
         | lExp=loopExp[$env, $src] { $ast = $lExp.ast; }
+        | toclOpCallExp[$env] { $ast = null; }
         ;
 
 loopExp[Environment env, ASTOclExpression src] returns [ASTCallExp ast]
@@ -338,19 +339,17 @@ featureCallExp[Environment env, ASTOclExpression src] returns [ASTCallExp ast]
                                 $ast = new ASTAssociationClassCallExp($src, $n1.str, $n2.str);
                         }
                 }
-                | ( (p=isMarkedPre { isPre = true; }) ? (l=LPAREN a=arguments[$env]? RPAREN)?)
+                | (p=isMarkedPre { isPre = true; })?
                 {
-                        if ($l == null) {
-                                $ast = new ASTPropertyCallExp($src, $n1.str, isPre);
+                       $ast = new ASTPropertyCallExp($src, $n1.str, isPre);
+                }
+                | l=LPAREN a=arguments[$env]? RPAREN
+                {
+                        if ($a.ctx == null) {
+                                $ast = new ASTOperationCallExp($src, $n1.str, null);
                         }
                         else {
-                                if ($a.ctx == null) {
-
-                                        $ast = new ASTOperationCallExp($src, $n1.str, null);
-                                }
-                                else {
-                                        $ast = new ASTOperationCallExp($src, $n1.str, $a.ast);
-                                }
+                                $ast = new ASTOperationCallExp($src, $n1.str, $a.ast);
                         }
                 }
         )
@@ -455,13 +454,12 @@ operation[Environment env]: (pathName SCOPE)? simpleName LPAREN parameters[$env]
 parameters[Environment env]: variableDeclaration[$env] (COMMA parameters[$env])?;
 
 //TOCL EXPRESSION PRODUCTION RULES
-toclExpression[Environment env]: nextExp[$env]
+toclOperatorExpression[Environment env]: nextExp[$env]
                 | alwaysExp[$env]
                 | sometimeExp[$env]
                 | previousExp[$env]
                 | alwaysPastExp[$env]
                 | sometimePastExp[$env]
-                | nextOperationCallExp[$env]
                 ;
 
 //Rule 7. If e ∈ ExprBoolean then next e ∈ ExprBoolean and free(next e):= free(e).
@@ -531,4 +529,6 @@ sometimePastExp[Environment env]: SOMETIME_PAST e=binaryOperationExp[$env]
                 } 
         };
 
-nextOperationCallExp[Environment env]: simpleName AT_NEXT LPAREN arguments[$env]? RPAREN;
+isMarkedNext: AT_NEXT;
+
+toclOpCallExp[Environment env]: simpleName (isMarkedPre | isMarkedNext) LPAREN arguments[$env]? RPAREN;

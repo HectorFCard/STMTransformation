@@ -11,27 +11,26 @@ import java.nio.file.StandardOpenOption;
 
 public class JointTransformer {
     public static Path transform(File umlFile) {
-        return transform(umlFile, null, false, null);
+        return transform(umlFile, null, null);
     }
 
     public static Path transform(File umlFile, File toclFile) {
-        return transform(umlFile, toclFile, false, null);
+        return transform(umlFile, toclFile, null);
     }
 
-    public static Path transform(File umlFile, File toclFile, Boolean optimize, String propertyForOptimization) {
-        File stmFile = UMLTransformer.genSTM(umlFile);
-        Path useFilePath = null;
+    public static Path transform(File umlFile, File toclFile, String propertyForOptimization) {
+        Path useFilePath = UMLTransformer.genSTM(umlFile).toPath();
 
         if (toclFile != null) {
             String toclTranslation = TOCLTranslator.translate(toclFile);
             try {
-                useFilePath = Files.write(stmFile.toPath(), toclTranslation.getBytes(), StandardOpenOption.APPEND);
+                useFilePath = Files.write(useFilePath, toclTranslation.getBytes(), StandardOpenOption.APPEND);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-        if (optimize) {
+        if (propertyForOptimization != null) {
             String translatedProperty = TOCLTranslator.translate(propertyForOptimization);
             useFilePath = ModelOptimizer.optimize(useFilePath.toFile(), translatedProperty).toPath();
         }

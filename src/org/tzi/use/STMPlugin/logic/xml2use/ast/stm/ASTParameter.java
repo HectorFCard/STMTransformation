@@ -1,8 +1,6 @@
 package org.tzi.use.STMPlugin.logic.xml2use.ast.stm;
 
 public class ASTParameter {
-    public class IsReturnException extends Exception {}
-
     String name;
     ASTClassifier type;
     String typeIndex;

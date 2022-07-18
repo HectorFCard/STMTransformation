@@ -57,7 +57,7 @@ public class ASTQueryOperation {
         ArrayList<String> params = new ArrayList<String>();
         String paramText = "";
         for (ASTParameter p : parameters) {
-            params.add(p.toString());
+            if (!p.direction.equals("return")) params.add(p.toString());
         }
         if (params.size() > 0) paramText = String.join(", ", params);
         return name+"("+paramText+")"+typeName+

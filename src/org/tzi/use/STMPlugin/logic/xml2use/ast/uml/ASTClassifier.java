@@ -12,6 +12,10 @@ public class ASTClassifier {
         else if (fieldName.equals("isAbstract")) isAbstract = Boolean.parseBoolean(fieldValue);
     }
 
+    public Boolean isAbstract() {
+        return isAbstract;
+    }
+
     public void setSuperType(ASTClassifier t) {
         superType = t;
     }

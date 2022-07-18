@@ -8,6 +8,8 @@ public class ASTComponentClass extends ASTClassifier {
     ArrayList<ASTConstraint> invariants = new ArrayList<ASTConstraint>();
 
     public void doFinalTasks(ASTSnapshotClass e) {
+        if (isAbstract) return;
+
         String className =  name.toLowerCase();
         String varName = className.substring(0, 1);
 
@@ -145,7 +147,8 @@ public class ASTComponentClass extends ASTClassifier {
         if (attributes.size() > 0) attrs = "attributes\n"; 
         for (ASTProperty a : attributes) {
             if (a.aggregation.equals("composite")) continue;
-            attrs = attrs.concat(a.getName()+" : "+a.getType().getName()+"\n");
+            attrs = attrs.concat(a.getName()+" : "+a.getType().getName()+
+                    (a.getRedefines() != null ? " redefines "+ a.getRedefines().getName() : "")+"\n");
         }
         if (queryOps.size() > 0) qOps = "operations\n"; 
         for (ASTQueryOperation o : queryOps) {
