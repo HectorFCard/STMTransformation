@@ -38,7 +38,7 @@ public class STMPluginCMD implements IPluginShellCmdDelegate {
                 File inputUMLFile = new File(arguments[0]);
                 File inputTOCLFile = arguments.length > 1 ? new File(arguments[1]) : null;
 
-                JointTransformer.transform(inputUMLFile, inputTOCLFile, optimize, optimize ? arguments[3] : null);
+                JointTransformer.transform(inputUMLFile, inputTOCLFile, optimize ? arguments[3] : null);
             }
             case "loadXmi" -> {
                 PrintStream out = Log.out();
