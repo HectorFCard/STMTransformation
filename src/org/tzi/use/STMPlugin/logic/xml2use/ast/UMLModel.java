@@ -88,6 +88,22 @@ public class UMLModel extends ASTModel {
                 ASTParameter newParam = (ASTParameter) processedElements.pop();
                 ((ASTOperation) processedElements.lastElement()).addParameter(newParam);
             }
+            case "lowerValue" -> {
+                if ( processedElements.lastElement() instanceof  ASTProperty) {
+                    String lower = ctx.attribute(2).STRING().getText();
+                    lower = lower.substring(1, lower.length()-1);
+                    ((ASTProperty) processedElements.lastElement())
+                            .setField("lower", lower);
+                }
+            }
+            case "upperValue" -> {
+                if ( processedElements.lastElement() instanceof  ASTProperty) {
+                    String upper = ctx.attribute(2).STRING().getText();
+                    upper = upper.substring(1, upper.length()-1);
+                    ((ASTProperty) processedElements.lastElement())
+                            .setField("upper", upper);
+                }
+            }
             case "ownedRule" -> {
                 ASTConstraint newContr = (ASTConstraint) processedElements.pop();
                 if (processedElements.lastElement() instanceof ASTClass) {
