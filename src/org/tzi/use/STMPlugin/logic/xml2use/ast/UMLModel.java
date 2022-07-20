@@ -90,7 +90,7 @@ public class UMLModel extends ASTModel {
             }
             case "lowerValue" -> {
                 if ( processedElements.lastElement() instanceof  ASTProperty) {
-                    String lower = ctx.attribute(2).STRING().getText();
+                    String lower = ctx.attribute().size() > 2 ? ctx.attribute(2).STRING().getText() : "\"0\"";
                     lower = lower.substring(1, lower.length()-1);
                     ((ASTProperty) processedElements.lastElement())
                             .setField("lower", lower);
@@ -98,7 +98,7 @@ public class UMLModel extends ASTModel {
             }
             case "upperValue" -> {
                 if ( processedElements.lastElement() instanceof  ASTProperty) {
-                    String upper = ctx.attribute(2).STRING().getText();
+                    String upper = ctx.attribute().size() > 2 ? ctx.attribute(2).STRING().getText() : "\"1\"";
                     upper = upper.substring(1, upper.length()-1);
                     ((ASTProperty) processedElements.lastElement())
                             .setField("upper", upper);
