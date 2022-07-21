@@ -3,6 +3,7 @@ package org.tzi.use.STMPlugin.logic;
 import org.tzi.use.STMPlugin.logic.optimization.ModelOptimizer;
 import org.tzi.use.STMPlugin.logic.tocl2ocl.TOCLTranslator;
 import org.tzi.use.STMPlugin.logic.uml2stm.UMLTransformer;
+import org.tzi.use.STMPlugin.logic.xml2use.XML2Classes;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -22,8 +23,8 @@ public class JointTransformer {
         Path useFilePath = UMLTransformer.genSTM(umlFile).toPath();
 
         if (toclFile != null) {
-            String toclTranslation = TOCLTranslator.translate(toclFile);
             try {
+                String toclTranslation = TOCLTranslator.translate(toclFile, XML2Classes.genClasses(umlFile));
                 useFilePath = Files.write(useFilePath, toclTranslation.getBytes(), StandardOpenOption.APPEND);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -31,8 +32,15 @@ public class JointTransformer {
         }
 
         if (propertyForOptimization != null) {
-            String translatedProperty = TOCLTranslator.translate(propertyForOptimization);
+            String translatedProperty = null;
+            try {
+                translatedProperty = TOCLTranslator.translate(propertyForOptimization, XML2Classes.genClasses(umlFile));
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
             useFilePath = ModelOptimizer.optimize(useFilePath.toFile(), translatedProperty).toPath();
+
         }
 
         return useFilePath;

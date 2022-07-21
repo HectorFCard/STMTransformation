@@ -48,6 +48,8 @@ import org.tzi.use.runtime.shell.IPluginShellCmdDelegate;
 
 import org.tzi.use.STMPlugin.logic.xml2use.XML2USEConverter;
 import org.tzi.use.STMPlugin.logic.JointTransformer;
+import org.tzi.use.STMPlugin.logic.xml2use.XML2Classes;
+import org.tzi.use.STMPlugin.logic.xml2use.ast.uml.ASTClass;
 
 import org.tzi.use.kodkod.plugin.gui.ModelValidatorConfigurationWindow;
 import org.tzi.use.kodkod.plugin.PluginModelFactory;
@@ -69,8 +71,8 @@ public class STMTransformationConfigurationWindow extends JDialog {
     private JButton transformButton;
     private JButton cancelButton;
 
-    private AddTOCLDialog TOCLdlgTransform = new AddTOCLDialog(STMTransformationConfigurationWindow.this);
-    private AddTOCLDialog TOCLdlgTV = new AddTOCLDialog(STMTransformationConfigurationWindow.this);
+    private AddTOCLDialog TOCLdlgTransform = new AddTOCLDialog(STMTransformationConfigurationWindow.this,"Write TOCL Properties");
+    private AddTOCLDialog TOCLdlgTV = new AddTOCLDialog(STMTransformationConfigurationWindow.this,"Write TOCL Properties");
 
     private final Session fSession;
     private MModel mModel = null;
@@ -91,6 +93,7 @@ public class STMTransformationConfigurationWindow extends JDialog {
         JPanel transformPanel = new JPanel(new GridBagLayout());
         final JLabel fileLabelUML = new FilePathLabel();
         fileLabelUML.setPreferredSize(new Dimension(300,20));
+        
         JButton filechooserButtonUML = new JButton("Select");//consider adding image icon
         fileChooserUML = new JFileChooser(Options.getLastDirectory().toFile());
         fileChooserUML.setFileFilter(new ExtFileFilter("uml","UML Model in XMI"));
@@ -102,6 +105,7 @@ public class STMTransformationConfigurationWindow extends JDialog {
 				String cmd = e.getActionCommand();
 				if(cmd.equals(JFileChooser.APPROVE_SELECTION)){
 					fileLabelUML.setText(fileChooserUML.getSelectedFile().getAbsolutePath());
+                    TOCLdlgTransform.setClasses(fileChooserUML.getSelectedFile());
 				}
 			}
 		});
@@ -159,6 +163,22 @@ public class STMTransformationConfigurationWindow extends JDialog {
         transformPanel.add(addTOCLButton,getGBC(subRow,2));
         subRow++;
 
+        //add optimization checkbox
+        JCheckBox optimizeModel = new JCheckBox("Optimize Analysis");
+        optimizeModel.setSelected(false);
+        optimizeModel.setToolTipText("<html>Optimize the analysis of the inputted model</html>");
+        AddTOCLDialog addOptimizeProperty = new AddTOCLDialog(STMTransformationConfigurationWindow.this,"Write TOCL Property for Optimization");
+        optimizeModel.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (optimizeModel.isSelected()) {
+                    addOptimizeProperty.setVisible(true);
+                }
+            }
+        });
+        transformPanel.add(optimizeModel, getGBC(subRow, 0));
+        subRow++;
+
         //Adding Transform and Cancel buttons
         JPanel buttonPanel = new JPanel(new GridBagLayout());
         transformButton = new JButton("Transform");
@@ -167,6 +187,7 @@ public class STMTransformationConfigurationWindow extends JDialog {
             public void actionPerformed(ActionEvent e) {
                 File fUML = fileChooserUML.getSelectedFile();
                 File fTOCL = fileChooserTOCL.getSelectedFile();
+                String optimizeProperty = "";
                 if (fUML == null) {
                     JOptionPane.showMessageDialog(STMTransformationConfigurationWindow.this, "Please select a UML file!", "No File", JOptionPane.ERROR_MESSAGE);
                     return;
@@ -183,15 +204,23 @@ public class STMTransformationConfigurationWindow extends JDialog {
                             Files.writeString(toclFile.toPath(), toclFileScanner.nextLine()+"\n", StandardOpenOption.APPEND);
                         }
                     }
-                    if (additionalTOCL.size() > 0) {
-                        System.out.println("there are additional tocl props");
+                    if (additionalTOCL.size() > 0) {;
                         Files.writeString(toclFile.toPath(), "\n\n--Additional TOCL Properties\n", StandardOpenOption.APPEND);
                         for (int i = 0; i < additionalTOCL.size(); i++) {
                             Files.writeString(toclFile.toPath(), (additionalTOCL.elementAt(i)+"\n\n"), StandardOpenOption.APPEND);
                         }
                     }
+                    Vector<String> optimizeTOCLProperties = addOptimizeProperty.getTOCLProperties();
+                    
+                    if (optimizeTOCLProperties.size() > 0) {
+                        optimizeProperty = optimizeTOCLProperties.elementAt(0);
+                        if (optimizeTOCLProperties.size() > 1) {
+                            System.out.println("The optimization technique takes 1 temporal property.\nOnly the first will be considered.\n");
+                        }
+                    }
+
                     dispose();
-                    JointTransformer.transform(fUML, toclFile);
+                    JointTransformer.transform(fUML, toclFile, optimizeModel.isSelected() ? optimizeProperty : null);
                 } 
                 catch (IOException ioEx) {
                     ioEx.printStackTrace();
@@ -234,6 +263,7 @@ public class STMTransformationConfigurationWindow extends JDialog {
 				String cmd = e.getActionCommand();
 				if(cmd.equals(JFileChooser.APPROVE_SELECTION)){
 					fileLabelUMLTV.setText(fileChooserUMLTV.getSelectedFile().getAbsolutePath());
+                    TOCLdlgTV.setClasses(fileChooserUMLTV.getSelectedFile());
 				}
 			}
 		});
@@ -290,6 +320,23 @@ public class STMTransformationConfigurationWindow extends JDialog {
         transValPanel1.add(new JLabel("Create additional TOCL properties"),getGBC(TV1SubRow,0));
         transValPanel1.add(addTOCLButtonTV,getGBC(TV1SubRow,2));
         TV1SubRow++;
+
+        //add optimization checkbox
+        JCheckBox optimizeModelTV = new JCheckBox("Optimize Analysis");
+        optimizeModelTV.setSelected(false);
+        optimizeModelTV.setToolTipText("<html>Optimize the analysis of the inputted model</html>");
+        AddTOCLDialog addOptimizePropertyTV = new AddTOCLDialog(STMTransformationConfigurationWindow.this,"Write TOCL Property for Optimization");
+        optimizeModelTV.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (optimizeModelTV.isSelected()) {
+                    addOptimizePropertyTV.setVisible(true);
+                }
+            }
+        });
+        transValPanel1.add(optimizeModelTV, getGBC(subRow, 0));
+        TV1SubRow++;
+
 
         //Choosing configuration method
         JPanel uploadPropPanel = new JPanel(new GridBagLayout());
@@ -356,6 +403,7 @@ public class STMTransformationConfigurationWindow extends JDialog {
             public void actionPerformed(ActionEvent e) {
                 File fUML = fileChooserUMLTV.getSelectedFile();
                 File fTOCL = fileChooserTOCLTV.getSelectedFile();
+                String optimizeProperty = "";
                 Path fileCreated = null;
                 if (fUML == null) {
                     JOptionPane.showMessageDialog(STMTransformationConfigurationWindow.this, "Please select a UML file!", "No File", JOptionPane.ERROR_MESSAGE);
@@ -380,8 +428,18 @@ public class STMTransformationConfigurationWindow extends JDialog {
                             Files.writeString(toclFile.toPath(), (additionalTOCL.elementAt(i)+"\n\n"), StandardOpenOption.APPEND);
                         }
                     }
+
+                    Vector<String> optimizeTOCLProperties = addOptimizePropertyTV.getTOCLProperties();
+                    
+                    if (optimizeTOCLProperties.size() > 0) {
+                        optimizeProperty = optimizeTOCLProperties.elementAt(0);
+                        if (optimizeTOCLProperties.size() > 1) {
+                            System.out.println("The optimization technique takes 1 temporal property.\nOnly the first will be considered.\n");
+                        }
+                    }
+
                     dispose();
-                    fileCreated = JointTransformer.transform(fUML, toclFile);
+                    fileCreated = JointTransformer.transform(fUML, toclFile, optimizeModelTV.isSelected() ? optimizeProperty : null);
                 } 
                 catch (IOException ioEx) {
                     ioEx.printStackTrace();

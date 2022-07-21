@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -18,8 +19,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import org.tzi.use.STMPlugin.gui.AddTOCLErrorListener;
+import org.tzi.use.STMPlugin.logic.xml2use.XML2Classes;
+import org.tzi.use.STMPlugin.logic.xml2use.ast.uml.ASTClass;
 
 import java.util.Vector;
+import java.util.ArrayList;
 
 public class AddTOCLDialog extends JDialog  {
 
@@ -29,14 +33,16 @@ public class AddTOCLDialog extends JDialog  {
 
     private final Vector<String> toclPropertyList = new Vector<String>();
 
+    private ArrayList<ASTClass> classes = new ArrayList<ASTClass>();
+
     //private File toclFile;
 
     //private final JButton addButton;
 
     //private final JButton helpButton;
 
-    AddTOCLDialog(JDialog parent) {
-        super(parent, "Write TOCL Properties");
+    AddTOCLDialog(JDialog parent, String title) {
+        super(parent, title);
 
         setDefaultCloseOperation(HIDE_ON_CLOSE);
 
@@ -75,7 +81,7 @@ public class AddTOCLDialog extends JDialog  {
             public void actionPerformed(ActionEvent e) {
                 AddTOCLErrorListener parserErrorListener = new AddTOCLErrorListener(feedBack);
                 AddTOCLErrorListener lexerErrorListener = new AddTOCLErrorListener(feedBack);
-                boolean isValidinput = AddTOCLHandler.verifyCorrectInput(toclProperties.getText(), feedBack, parserErrorListener, lexerErrorListener);
+                boolean isValidinput = AddTOCLHandler.verifyCorrectInput(toclProperties.getText(), feedBack, parserErrorListener, lexerErrorListener, classes);
                 
                 if (!(parserErrorListener.getErrorResult() && lexerErrorListener.getErrorResult())) {
 
@@ -156,6 +162,14 @@ public class AddTOCLDialog extends JDialog  {
 
     public Vector<String> getTOCLProperties() {
         return toclPropertyList;
+    }
+
+    public void setClasses(File fUML) {
+        try {
+            classes = XML2Classes.genClasses(fUML);
+        } catch(Exception ex) {
+            ex.printStackTrace();
+        }
     }
 }
 

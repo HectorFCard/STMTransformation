@@ -8,14 +8,22 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
+import org.tzi.use.STMPlugin.logic.xml2use.ast.uml.ASTClass;
+import org.tzi.use.STMPlugin.gui.AddTOCLHandler;
+
 import java.io.*;
 import java.util.Stack;
+import java.util.ArrayList;
 
 
 public class TOCLTranslator {
     public static class OCLEmitter extends TOCLParserBaseListener {
         TOCLParser parser;
-        public OCLEmitter(TOCLParser parser) {this.parser = parser;}
+        ArrayList<ASTClass> classes;
+        public OCLEmitter(TOCLParser parser, ArrayList<ASTClass> classes) {
+            this.parser = parser;
+            this.classes = classes;
+        }
         ParseTreeProperty<String> ocl = new ParseTreeProperty<String>();
         String getOCL(ParseTree ctx) { return ocl.get(ctx); }
         void setOCL(ParseTree ctx, String s) { ocl.put(ctx, s); }
@@ -24,6 +32,9 @@ public class TOCLTranslator {
         private boolean nestedTOCL = false;
         private String TOCLReplacement = null;
         private final String[] toclOperators = {"sometime","always","next","sometimePast","alwaysPast","previous"};
+        private String currentContext = null;
+        private String lastPostfixExp = null;
+        private String toclOpCallPostfix = null;
         //BASIC RULES
 
         public void exitExpressionInOcl(TOCLParser.ExpressionInOclContext ctx) { 
@@ -107,13 +118,33 @@ public class TOCLTranslator {
                     String untilExp = expr2ToSatisfy.replace("self","self.getPost()->any(o | o.getCurrentSnapshot()=s)");
                     untilExp = untilExp.replace("allInstances()","allInstances()->select(o | o.getCurrentSnapshot() = s)");
 
+                    
                     oclTranslation = "(let CS:Snapshot = self.getCurrentSnapshot() \nin let FS:Set(Snapshot) = CS.getPost() \nin let FSQ:Set(Snapshot) = FS->select(s | " + untilExp + ") \nin let FSP:Set(Snapshot) = FS->including(CS)->select(s | " + alwaysExp+ ") \nin if (FSQ->size()>0) then (if (FSP->size()>0) then (FSQ->exists(s | FSP-(s.getPost()->including(s)) = FS->including(CS)-(s.getPost()->including(s)))) else false endif) else (FSP = FS->including(CS)) endif)";
                     //oclTranslation = "let CS:Snapshot = self.getCurrentSnapshot() in let FSQ = CS.getPost()->select(s | s.sat("+getOCL(ctx.getChild(3))+"))->asOrderedSet()->first() in if (FSQ.isDefined()) then (FSQ.getPre()-CS.getPre())->forAll(s | s.sat("+getOCL(ctx.getChild(1))+") else CS.getPost()->including(CS)->forAll(s | s.sat("+getOCL(ctx.getChild(1))+")) endif";
                     stack.push(oclTranslation);
                     stack.push(origTocl);
                 }
                 else {
-                    oclTranslation = "let CS:Snapshot = self.getCurrentSnapshot() in let LSQ = CS.getPre()->select(s | s.sat("+getOCL(ctx.getChild(3))+"))->asOrderedSet()->first() in if (LSQ.isDefined()) then (CS.getPre()->including(CS) - LSQ.getPre())->including(LSQ)->forAll(s | s.sat("+getOCL(ctx.getChild(1))+")) else CS.getPre()->forAll(s | s.sat("+getOCL(ctx.getChild(1))+")) endif";
+                    String expr1ToSatisfy = getOCL(ctx.getChild(1));
+                    String expr2ToSatisfy = getOCL(ctx.getChild(3));
+                    while (hasNestedTOCL(expr2ToSatisfy)) {
+                        String origExpr = stack.pop();
+                        String oclExpr = stack.pop();
+                        expr2ToSatisfy = expr2ToSatisfy.replace(origExpr,oclExpr);
+                    }
+                    while (hasNestedTOCL(expr1ToSatisfy)) {
+                        String origExpr = stack.pop();
+                        String oclExpr = stack.pop();
+                        expr1ToSatisfy = expr1ToSatisfy.replace(origExpr,oclExpr);
+                    }
+                    String alwaysExp = expr1ToSatisfy.replace("self","self.getPre()->including(self)->any(o | o.getCurrentSnapshot()=s)");
+                    alwaysExp = alwaysExp.replace("allInstances()","allInstances()->select(o | o.getCurrentSnapshot() = s)");
+                    String sinceExp = expr2ToSatisfy.replace("self","self.getPre()->any(o | o.getCurrentSnapshot()=s)");
+                    sinceExp = sinceExp.replace("allInstances()","allInstances()->select(o | o.getCurrentSnapshot() = s)");
+
+                    oclTranslation = "(let CS:Snapshot = self.getCurrentSnapshot() \nin let PS:Set(Snapshot) = CS.getPre() \nin let PSQ:Set(Snapshot) = PS->select(s | "+sinceExp+") \nin let PSP:Set(Snapshot) = PS->including(CS)->select(s | " + alwaysExp+ ") \nin if (PSQ->size()>0) then (if (PSP->size()>0) then (PSQ->exists(s | PSP-(s.getPre()->including(s)) = PS->including(CS)-(s.getPre()->including(s)))) else false endif) else (PSP = PS->including(CS)) endif)";
+
+                    //oclTranslation = "let CS:Snapshot = self.getCurrentSnapshot() in let LSQ = CS.getPre()->select(s | s.sat("+getOCL(ctx.getChild(3))+"))->asOrderedSet()->first() in if (LSQ.isDefined()) then (CS.getPre()->including(CS) - LSQ.getPre())->including(LSQ)->forAll(s | s.sat("+getOCL(ctx.getChild(1))+")) else CS.getPre()->forAll(s | s.sat("+getOCL(ctx.getChild(1))+")) endif";
                     stack.push(oclTranslation);
                     stack.push(origTocl);
                 }
@@ -165,7 +196,26 @@ public class TOCLTranslator {
                     stack.push(origTocl);
                 }
                 else {
-                    oclTranslation = "let CS:Snapshot = self.getCurrentSnapshot() in let LSQ = CS.getPre()->select(s | s.sat("+getOCL(ctx.getChild(3))+"))->asOrderedSet()->first() in if (LSQ.isDefined()) then (CS.getPre()->including(CS) - LSQ.getPre())->including(LSQ)->exists(s | s.sat("+getOCL(ctx.getChild(1))+")) else CS.getPre()->exists(s | s.sat("+getOCL(ctx.getChild(1))+")) endif";
+                    String expr1ToSatisfy = getOCL(ctx.getChild(1));
+                    String expr2ToSatisfy = getOCL(ctx.getChild(3));
+                    while (hasNestedTOCL(expr2ToSatisfy)) {
+                        String origExpr = stack.pop();
+                        String oclExpr = stack.pop();
+                        expr2ToSatisfy = expr2ToSatisfy.replace(origExpr,oclExpr);
+                    }
+                    while (hasNestedTOCL(expr1ToSatisfy)) {
+                        String origExpr = stack.pop();
+                        String oclExpr = stack.pop();
+                        expr1ToSatisfy = expr1ToSatisfy.replace(origExpr,oclExpr);
+                    }
+                    String sometimeExp = expr1ToSatisfy.replace("self","self.getPre()->including(self)->any(o | o.getCurrentSnapshot()=s)");
+                    sometimeExp = sometimeExp.replace("allInstances()","allInstances()->select(o | o.getCurrentSnapshot() = s)");
+                    String sinceExp = expr2ToSatisfy.replace("self","self.getPre()->any(o | o.getCurrentSnapshot()=s)");
+                    sinceExp = sinceExp.replace("allInstances()","allInstances()->select(o | o.getCurrentSnapshot() = s)");
+
+                    oclTranslation = "(let CS:Snapshot = self.getCurrentSnapshot() \nin let PS:Set(Snapshot) = CS.getPre() \nin let PSQ:Set(Snapshot) = PS->select(s | "+sinceExp+") \nin let PSP:Set(Snapshot) = PS->including(CS)->select(s | " + sometimeExp+ ") \nin if (PSQ->size()>0) then (if (PSP->size()>0) then (PSP->exists(s1 | PSQ->forAll(s2 | s1.getPre()->size() > s2.getPre()->size()))) else false endif) else PSP->size()>0 endif)";
+
+                    //oclTranslation = "let CS:Snapshot = self.getCurrentSnapshot() in let LSQ = CS.getPre()->select(s | s.sat("+getOCL(ctx.getChild(3))+"))->asOrderedSet()->first() in if (LSQ.isDefined()) then (CS.getPre()->including(CS) - LSQ.getPre())->including(LSQ)->exists(s | s.sat("+getOCL(ctx.getChild(1))+")) else CS.getPre()->exists(s | s.sat("+getOCL(ctx.getChild(1))+")) endif";
                     stack.push(oclTranslation);
                     stack.push(origTocl);
                 }
@@ -225,6 +275,43 @@ public class TOCLTranslator {
             stack.push(origTocl);
         }
 
+        public void enterToclOpCallExp(TOCLParser.ToclOpCallExpContext ctx) { 
+            toclOpCallPostfix = lastPostfixExp.replace(ctx.getText(),"");
+            if (toclOpCallPostfix.charAt(toclOpCallPostfix.length()-1) == '.') {
+                toclOpCallPostfix = toclOpCallPostfix.substring(0,toclOpCallPostfix.length()-1);
+            }
+            else {
+                toclOpCallPostfix = toclOpCallPostfix.substring(0,toclOpCallPostfix.length()-2);
+            }
+        }
+
+        public void exitToclOpCallExp(TOCLParser.ToclOpCallExpContext ctx) { 
+            TokenStream tokens = parser.getTokenStream(); 
+            String oclTranslation = "";
+            String origTocl = tokens.getText(ctx);
+
+            if (ctx.getChild(1).getText().equals("@next")) {
+                //self.requested implies self.switchPedLight@next
+                //self.requested implies self.getCurrentSnapshot().nextT.oclIsTypeOf(TrafficLight_switchPedLight)
+                oclTranslation = "getCurrentSnapshot().nextT.oclIsTypeOf("+ AddTOCLHandler.getType(toclOpCallPostfix,classes,currentContext) + "_" + ctx.getChild(0).getText() +")";
+            }
+            else {
+                oclTranslation = "getCurrentSnapshot().previousT.oclIsTypeOf("+ AddTOCLHandler.getType(toclOpCallPostfix,classes,currentContext) + "_" + ctx.getChild(0).getText() +")";
+            }
+
+            stack.push(oclTranslation);
+            stack.push(origTocl);
+        }
+
+        public void enterClassifierContextDecl(TOCLParser.ClassifierContextDeclContext ctx) { 
+            int numChildren = ctx.getChildCount();
+            currentContext = ctx.getChild(numChildren-2).getText();
+        }
+
+        public void enterPostfixExp(TOCLParser.PostfixExpContext ctx) { 
+            lastPostfixExp = ctx.getText();
+        }
+
         private boolean hasNestedTOCL(String toclExpr) {
             boolean hasNested = false;
 
@@ -239,7 +326,7 @@ public class TOCLTranslator {
         }
     }
 
-    public static String translate(String text) {
+    public static String translate(String text, ArrayList<ASTClass> classes) {
         CharStream input = null;
         try {
             input = CharStreams.fromStream(new ByteArrayInputStream(text.getBytes()));
@@ -254,13 +341,13 @@ public class TOCLTranslator {
         ParseTree tree = parser.expressionInOcl();
 
         ParseTreeWalker walker = new ParseTreeWalker();
-        OCLEmitter converter = new OCLEmitter(parser);
+        OCLEmitter converter = new OCLEmitter(parser, classes);
         walker.walk(converter, tree);
 
         return converter.getOCL(tree);
     }
         
-    public static String translate(File infile) {
+    public static String translate(File infile, ArrayList<ASTClass> classes) {
         CharStream input = null;
         try {
             FileReader fileReader = new FileReader(infile.getAbsolutePath());
@@ -276,7 +363,7 @@ public class TOCLTranslator {
         ParseTree tree = parser.expressionInOcl();
 
         ParseTreeWalker walker = new ParseTreeWalker();
-        OCLEmitter converter = new OCLEmitter(parser);
+        OCLEmitter converter = new OCLEmitter(parser, classes);
         walker.walk(converter, tree);
 
         String inputFilePath = infile.getAbsolutePath();
